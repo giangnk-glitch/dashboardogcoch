@@ -419,21 +419,38 @@ function checkPw() {
 
 let monthlyChart, donutChart, stackChart;
 
-function gvizUrl(gidOrName) {
-  const isNum = /^\d+$/.test(String(gidOrName));
-  const param = isNum ? `gid=${gidOrName}` : `sheet=${encodeURIComponent(gidOrName)}`;
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&${param}`;
+function csvUrl(sheetName) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 }
 
-async function fetchSheet(gidOrName) {
-  const res = await fetch(gvizUrl(gidOrName));
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  return lines.map(line => {
+    const cells = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+function toNum(s) {
+  if (!s || s === '' || s === '-') return 0;
+  // Remove dots used as thousand separators (Vietnamese format) and replace comma decimals
+  const cleaned = s.replace(/\./g, '').replace(',', '.').replace('%','').trim();
+  return parseFloat(cleaned) || 0;
+}
+
+async function fetchCSV(sheetName) {
+  const res = await fetch(csvUrl(sheetName));
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   const text = await res.text();
-  // gviz returns: google.visualization.Query.setResponse({...});
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start === -1) throw new Error('Không parse được response từ Sheets');
-  const json = JSON.parse(text.substring(start, end + 1));
-  return json.table;
+  return parseCSV(text);
 }
 
 function cellVal(row, col) {
@@ -464,14 +481,13 @@ async function loadData() {
   document.getElementById('errorMsg').innerHTML = '';
 
   try {
-    // Dùng tên sheet thay GID — ổn định hơn
-    const [dashTable, summaryTable] = await Promise.all([
-      fetchSheet('👁️ DASHBOARD_NGÀY'),
-      fetchSheet('📊 _SUMMARY_THÁNG')
+    const [dashRows, summaryRows] = await Promise.all([
+      fetchCSV('👁️ DASHBOARD_NGÀY'),
+      fetchCSV('📊 _SUMMARY_THÁNG')
     ]);
 
-    parseDashboard(dashTable);
-    parseSummary(summaryTable);
+    parseDashboardCSV(dashRows);
+    parseSummaryCSV(summaryRows);
 
     document.getElementById('mainContent').style.display = 'block';
   } catch(e) {
@@ -484,56 +500,43 @@ async function loadData() {
   document.getElementById('loadingScreen').classList.add('hidden');
 }
 
-function parseDashboard(table) {
-  if (!table || !table.rows) { loadFallback(); return; }
-  const rows = table.rows;
+function parseDashboardCSV(rows) {
+  // CSV row 0 = header, rows 1-6 = branches, row 7 = TỔNG
+  // Cols: 0=CƠ SỞ, 1=DT HÔM NAY, 2=DT HÔM QUA, 3=% THAY ĐỔI,
+  // 4=DTTB KPI, 5=% KPI NGÀY, 6=KHÁCH NẠP, 7=ĐƠN FnB, 8=ĐƠN MART,
+  // 9=NRU, 10=DT FNET, 11=DT FnB, 12=DT MART, 13=LŨY KẾ, 14=KPI THÁNG, 15=% KPI THÁNG
 
-  // Tìm ngày báo cáo
+  // Tìm ngày báo cáo từ header rows
   let reportDate = '05/04/2026';
-  for (let r of rows) {
-    if (!r.c) continue;
-    for (let c of r.c) {
-      if (!c) continue;
-      const f = c.f || '';
-      if (f.match(/\d{2}\/\d{2}\/\d{4}/)) { reportDate = f; break; }
+  for (let r of rows.slice(0, 3)) {
+    for (let c of r) {
+      const m = c.match(/\d{2}\/\d{2}\/\d{4}/);
+      if (m) { reportDate = m[0]; break; }
     }
   }
   document.getElementById('reportDate').textContent = reportDate;
 
-  // Sheet layout cột (có cột B trống - merged cells):
-  // col 0=CƠ SỞ, 1=trống, 2=DT HÔM NAY, 3=DT HÔM QUA, 4=%THAY ĐỔI,
-  // 5=DTTB KPI, 6=%KPI NGÀY, 7=KHÁCH NẠP, 8=ĐƠN FnB, 9=ĐƠN MART,
-  // 10=NRU, 11=DT FNET, 12=DT FnB, 13=DT MART, 14=LŨY KẾ, 15=KPI THÁNG, 16=% KPI THÁNG
-  const COL = { name:0, dtHomNay:2, dtHomQua:3, dttbKPI:5, pctKPI:6,
-    khachNap:7, donFnB:8, donMart:9, nru:10, dtFnet:11, dtFnB:12,
-    dtMart:13, luyKe:14, kpiThang:15, pctKPIThang:16 };
-
-  function getNum(row, idx) {
-    if (!row.c || row.c.length <= idx || !row.c[idx]) return 0;
-    return Number(row.c[idx].v) || 0;
-  }
-
   const branchData = {};
   for (let r of rows) {
-    if (!r.c || !r.c[0] || !r.c[0].v) continue;
-    const name = String(r.c[0].v).trim();
+    if (!r[0]) continue;
+    const name = r[0].trim();
     if (!BRANCHES.includes(name)) continue;
     branchData[name] = {
       name,
-      dtHomNay:    getNum(r, COL.dtHomNay),
-      dtHomQua:    getNum(r, COL.dtHomQua),
-      dttbKPI:     getNum(r, COL.dttbKPI),
-      pctKPI:      getNum(r, COL.pctKPI),
-      khachNap:    getNum(r, COL.khachNap),
-      donFnB:      getNum(r, COL.donFnB),
-      donMart:     getNum(r, COL.donMart),
-      nru:         getNum(r, COL.nru),
-      dtFnet:      getNum(r, COL.dtFnet),
-      dtFnB:       getNum(r, COL.dtFnB),
-      dtMart:      getNum(r, COL.dtMart),
-      luyKe:       getNum(r, COL.luyKe),
-      kpiThang:    getNum(r, COL.kpiThang),
-      pctKPIThang: getNum(r, COL.pctKPIThang),
+      dtHomNay:    toNum(r[1]),
+      dtHomQua:    toNum(r[2]),
+      dttbKPI:     toNum(r[4]),
+      pctKPI:      toNum(r[5]) / 100,
+      khachNap:    toNum(r[6]),
+      donFnB:      toNum(r[7]),
+      donMart:     toNum(r[8]),
+      nru:         toNum(r[9]),
+      dtFnet:      toNum(r[10]),
+      dtFnB:       toNum(r[11]),
+      dtMart:      toNum(r[12]),
+      luyKe:       toNum(r[13]),
+      kpiThang:    toNum(r[14]),
+      pctKPIThang: toNum(r[15]) / 100,
     };
   }
 
@@ -619,20 +622,22 @@ function renderDashboard(branchData, totalRow) {
   window._branches = branches;
 }
 
-function parseSummary(table) {
-  if (!table || !table.rows) return;
+function parseSummaryCSV(rows) {
+  // _SUMMARY_THÁNG CSV cols:
+  // 0=THÁNG, 1=CƠ SỞ, 2=KEY, 3=DT THỰC, 4=DT FNET, 5=DT FnB,
+  // 6=DT MART, 7=KPI TỔNG, 8=KPI FNET, 9=KPI FnB, 10=KPI MART
   const monthData = {};
-  for (let r of table.rows) {
-    if (!r.c) continue;
-    const month = r.c[0] ? r.c[0].v : null;
-    const branch = r.c[1] ? r.c[1].v : null;
-    const dtThuc = r.c[3] ? r.c[3].v : 0;
-    const kpiTong = r.c[6] ? r.c[6].v : 0;
-    if (!month || !branch || typeof month !== 'number') continue;
+  for (let r of rows) {
+    const month  = parseInt(r[0]);
+    const branch = (r[1] || '').trim();
+    if (!month || !branch || !BRANCHES.includes(branch)) continue;
+    const dtThuc = toNum(r[3]);
+    const kpiTong= toNum(r[7]);
+    if (dtThuc === 0 && kpiTong === 0) continue;
     if (!monthData[month]) monthData[month] = { actual: 0, kpi: 0, branches: {} };
-    monthData[month].actual += (dtThuc || 0);
-    monthData[month].kpi += (kpiTong || 0);
-    monthData[month].branches[branch] = { actual: dtThuc || 0, kpi: kpiTong || 0 };
+    monthData[month].actual += dtThuc;
+    monthData[month].kpi   += kpiTong;
+    monthData[month].branches[branch] = { actual: dtThuc, kpi: kpiTong };
   }
   renderMonthlyChart(monthData);
   renderBranchTabs(monthData);

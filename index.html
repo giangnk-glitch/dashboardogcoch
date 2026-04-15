@@ -6,8 +6,7 @@
 <title>OGC Dashboard v2.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.0/crypto-js.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
 :root{
   --bg:#F3F5F9;--sur:#FFF;--brd:#E4E8F0;
@@ -19,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt);font-size:13px}
 
-/* ── LOGIN ── */
+/* LOGIN */
 #login{position:fixed;inset:0;background:#0D1B2A;display:flex;align-items:center;justify-content:center;z-index:9999}
 .lc{background:#111f30;border:1px solid #1e3a52;border-radius:16px;padding:36px 32px;width:min(320px,90vw);text-align:center}
 .lc-logo{font-size:36px;margin-bottom:12px}
@@ -28,184 +27,86 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 .lc-input{width:100%;background:#0d1b2a;border:1px solid #1e3a52;border-radius:8px;padding:11px 14px;font-size:16px;color:#fff;font-family:var(--mono);letter-spacing:.12em;outline:none;text-align:center;-webkit-appearance:none}
 .lc-input:focus{border-color:#1A6FE0}
 .lc-btn{width:100%;margin-top:12px;background:#1A6FE0;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;color:#fff;cursor:pointer}
-.lc-btn:hover{background:#1556b8}
 .lc-err{margin-top:8px;font-size:11px;color:#EF4444;min-height:16px}
 
-/* ── APP SHELL ── */
-#app{display:none;height:100%;flex-direction:column}
-#topbar{display:none;background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:48px;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100}
-.tb-title{font-size:14px;font-weight:600;color:var(--navy)}
+/* APP */
+#app{display:none;height:100vh;flex-direction:column}
+
+/* TOP BAR */
+#topbar{background:#fff;border-bottom:1px solid var(--brd);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100}
+.tb-title{font-size:14px;font-weight:600}
 .tb-pill{background:var(--navy);color:#fff;font-size:9px;font-family:var(--mono);padding:3px 10px;border-radius:20px}
 
-#modebar{display:none;background:#fff;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
-#modebar::-webkit-scrollbar{display:none}
-.mb-inner{display:flex;padding:0 12px}
+/* MODE BAR */
+#modebar{background:#fff;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;scrollbar-width:none;display:flex;padding:0 12px}
 .mb-tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--mut);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .mb-tab.active{color:var(--blue);border-color:var(--blue)}
 
+/* SCROLL AREA */
 #scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-#bottom-nav{display:none;background:#fff;border-top:1px solid var(--brd);height:var(--nb-h);flex-shrink:0;position:sticky;bottom:0;z-index:100}
-.bn-inner{display:grid;grid-template-columns:repeat(5,1fr);height:100%}
-.bn-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--dim);border:none;background:none;font-family:var(--fn);transition:color .15s;-webkit-tap-highlight-color:transparent}
-.bn-btn.active{color:var(--blue)}
-.bn-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.bn-btn .bn-lbl{font-size:10px;font-weight:500}
-
-/* ── DRAWER ── */
-#drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
-#drawer{position:fixed;top:0;bottom:0;left:0;width:min(280px,85vw);background:#111827;transform:translateX(-100%);transition:transform .25s ease;z-index:201;display:flex;flex-direction:column;overflow:hidden}
-#drawer.open{transform:translateX(0)}
-#drawer-overlay.show{display:block}
-.dr-head{padding:16px;border-bottom:1px solid #1e3044;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.dr-head-title{font-size:13px;font-weight:600;color:#fff}
-.dr-close{background:none;border:none;color:#6B7A8D;font-size:20px;cursor:pointer;line-height:1;padding:0}
-.dr-modes{display:flex;gap:4px;padding:10px 12px 6px;flex-shrink:0}
-.dr-mode{flex:1;padding:6px 4px;border-radius:6px;text-align:center;font-size:11px;font-weight:500;cursor:pointer;color:#4B6380;border:1px solid transparent;transition:all .15s}
-.dr-mode.active{background:#1A6FE020;color:#60A5FA;border-color:#1A6FE040}
-.dr-list{flex:1;overflow-y:auto;padding:4px 8px 16px;-webkit-overflow-scrolling:touch}
-.dr-group{font-size:9px;color:#4B6380;text-transform:uppercase;letter-spacing:.08em;padding:8px 6px 3px}
-.dr-item{display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:7px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .1s;-webkit-tap-highlight-color:transparent}
-.dr-item:hover,.dr-item:active{background:#1e3044}
-.dr-item.active{background:#1A6FE015;border-color:#1A6FE030}
-.dr-item-tag{font-family:var(--mono);font-size:10px;color:#7B94AD;min-width:36px}
-.dr-item.active .dr-item-tag{color:#60A5FA}
-.dr-item-val{font-size:10px;color:#6B7A8D;text-align:right;flex:1;font-family:var(--mono)}
-.dr-item.active .dr-item-val{color:#93C5FD}
-.dr-toggle{display:flex;background:#0d1b2a;border-radius:6px;padding:2px;margin:0 12px 8px;flex-shrink:0}
-.dr-toggle-btn{flex:1;padding:5px 8px;border-radius:5px;font-size:10px;font-weight:500;cursor:pointer;color:#4B6380;text-align:center;transition:all .12s}
-.dr-toggle-btn.active{background:#1e3044;color:#e2e8f0}
-
-/* ── DESKTOP LAYOUT ── */
-.desktop-shell{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
-.sidebar{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-logo{padding:18px 16px 14px;border-bottom:1px solid #1e3044}
-.sb-mark{font-size:14px;font-weight:600;color:#fff}
-.sb-sub{font-size:9px;color:#4B6380;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
-.sb-mode-tabs{display:flex;padding:10px 10px 0;gap:4px}
-.sb-mode-tab{flex:1;padding:7px 4px;border-radius:6px;text-align:center;font-size:10px;font-weight:500;cursor:pointer;color:#4B6380;border:1px solid transparent;transition:all .15s}
-.sb-mode-tab:hover{background:#1e3044;color:#94a3b8}
-.sb-mode-tab.active{background:#1A6FE018;color:#60A5FA;border-color:#1A6FE035}
-.sb-sec{padding:10px 10px 0}
-.sb-sec-lbl{font-size:9px;color:#4B6380;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.sb-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .12s}
+/* DESKTOP LAYOUT */
+.desktop-shell{display:grid;grid-template-columns:240px 1fr;min-height:100%}
+.sidebar{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;color:#fff}
+.sb-logo{padding:18px 16px;border-bottom:1px solid #1e3044}
+.sb-mark{font-size:14px;font-weight:600}
+.sb-sub{font-size:9px;color:#4B6380;margin-top:2px}
+.sb-tabs{display:flex;padding:10px;gap:4px}
+.sb-tab{flex:1;padding:7px;border-radius:6px;text-align:center;font-size:10px;font-weight:500;cursor:pointer;color:#4B6380;border:1px solid transparent;transition:all .15s}
+.sb-tab.active{background:#1A6FE018;color:#60A5FA;border-color:#1A6FE035}
+.sb-sec{padding:10px}
+.sb-sec-lbl{font-size:9px;color:#4B6380;text-transform:uppercase;margin-bottom:4px}
+.sb-items{display:flex;flex-direction:column;gap:2px}
+.sb-item{padding:8px;border-radius:6px;cursor:pointer;border:1px solid transparent;font-size:11px;color:#94a3b8;transition:all .15s}
 .sb-item:hover{background:#1e3044}
-.sb-item.active{background:#1A6FE018;border-color:#1A6FE040}
-.sb-item-tag{font-family:var(--mono);font-size:10px;color:#7B94AD;min-width:38px}
-.sb-item.active .sb-item-tag{color:#60A5FA}
-.sb-item-val{font-size:9px;color:#6B7A8D;flex:1;text-align:right;font-family:var(--mono)}
-.sb-item.active .sb-item-val{color:#93C5FD}
-.sb-div{border:none;border-top:1px solid #1e3044;margin:8px 0}
-.sb-bottom{padding:10px 12px;margin-top:auto}
-.sb-vt{display:flex;background:#0d1b2a;border-radius:6px;padding:2px;gap:1px}
-.sb-vt-btn{flex:1;padding:5px 6px;border-radius:5px;font-size:9px;font-weight:500;cursor:pointer;color:#4B6380;text-align:center;transition:all .12s}
-.sb-vt-btn.active{background:#1e3044;color:#e2e8f0}
-.sb-footer{font-size:9px;color:#4B6380;line-height:1.6;margin-top:8px}
-.sb-logout{width:100%;margin-top:8px;background:#1e3044;border:none;border-radius:6px;padding:7px;font-size:10px;color:#4B6380;cursor:pointer;font-family:var(--fn)}
-.sb-logout:hover{background:#2a3f55;color:#94a3b8}
+.sb-item.active{background:#1A6FE015;border-color:#1A6FE030;color:#60A5FA}
+.sb-bottom{padding:10px;margin-top:auto}
+.sb-logout{width:100%;padding:8px;background:#1e3044;border:none;border-radius:6px;color:#94a3b8;cursor:pointer;font-size:10px}
+
+/* MAIN CONTENT */
 .desktop-main{padding:20px 24px}
+.pg-hdr{margin-bottom:12px}
+.pg-title{font-size:18px;font-weight:600;margin-bottom:2px}
+.pg-sub{font-size:11px;color:var(--mut)}
 
-/* ── CONTENT ── */
-.pg-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
-.pg-title{font-size:17px;font-weight:600;letter-spacing:-.02em}
-.pg-sub{font-size:11px;color:var(--mut);margin-top:2px}
-.hdr-pill{background:var(--navy);color:#fff;font-size:10px;font-family:var(--mono);padding:5px 12px;border-radius:20px;white-space:nowrap}
-.info-bar{background:#EEF4FF;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
-.ib-item{display:flex;flex-direction:column;gap:1px}
-.ib-lbl{font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
-.ib-val{font-family:var(--mono);font-weight:500;color:var(--navy);font-size:11px}
-.ib-sep{width:1px;height:22px;background:var(--brd)}
+/* ALERTS */
+.alert-banner{background:#FEF9C3;border:1px solid #D97706;border-radius:8px;padding:12px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.alert-icon{color:#D97706;font-size:14px;flex-shrink:0}
+.alert-text{font-size:11px;color:#78350F;line-height:1.5}
+.alert.danger{background:#FEE2E2;border-color:#DC2626}
+.alert.danger .alert-icon,.alert.danger .alert-text{color:#991B1B}
 
-/* ── ALERTS ── */
-.alert{padding:8px 14px;margin-bottom:12px;font-size:11px;display:flex;align-items:flex-start;gap:8px;line-height:1.6;border-left:3px solid;border-radius:4px}
-.alert-icon{flex-shrink:0;font-size:14px;margin-top:2px}
-.alert-content{flex:1}
-.alert-title{font-weight:600;margin-bottom:2px}
-.alert-desc{font-size:10px;opacity:.9}
-.al-ok{background:#ECFDF5;border-color:#0EA47A;color:#065F46}
-.al-warn{background:#FEF9C3;border-color:#D97706;color:#78350F}
-.al-err{background:#FEE2E2;border-color:#DC2626;color:#7F1D1D}
-.al-info{background:#EFF6FF;border-color:#1A6FE0;color:#1E40AF}
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:#fff;border:1px solid var(--brd);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
+.kpi-card.warning::before{background:var(--amber)}
+.kpi-card.danger::before{background:var(--red)}
+.kpi-lbl{font-size:8px;color:var(--mut);text-transform:uppercase;margin-bottom:6px}
+.kpi-val{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--navy)}
+.kpi-sub{font-size:9px;color:var(--dim);margin-top:4px}
+.kpi-trend{display:inline-block;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:600;margin-top:4px}
+.kpi-trend.up{background:#ECFDF5;color:#065F46}
+.kpi-trend.down{background:#FEE2E2;color:#991B1B}
 
-/* ── KPI & STATS ── */
-.kpi-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px}
-.kc{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:12px 11px;position:relative;overflow:hidden;transition:all .2s}
-.kc:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(26,111,224,.1)}
-.kc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:2px 2px 0 0}
-.kc.bl::after{background:var(--blue)}.kc.tl::after{background:var(--teal)}.kc.am::after{background:var(--amber)}.kc.pu::after{background:var(--purple)}.kc.rd::after{background:var(--red)}.kc.nv::after{background:var(--navy)}
-.kc-lbl{font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-.kc-val{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--navy);line-height:1}
-.kc-sub{font-size:9px;color:var(--dim);margin-top:4px}
-.kc-trend{display:inline-flex;align-items:center;gap:3px;font-size:8px;padding:2px 6px;border-radius:12px;margin-top:4px}
-.kc-trend.up{background:#ECFDF5;color:#0EA47A}
-.kc-trend.down{background:#FEE2E2;color:#DC2626}
+/* TABLES */
+.panel{background:#fff;border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:20px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:-14px -14px 0}
+.table-wrap table{width:100%;border-collapse:collapse;padding:14px}
+table th{font-size:8px;font-weight:600;text-transform:uppercase;color:var(--dim);padding:8px;text-align:right;border-bottom:1px solid var(--brd);white-space:nowrap}
+table th:first-child{text-align:left}
+table td{padding:8px;border-bottom:1px solid #F2F4F8;text-align:right;font-size:10px;color:var(--mut)}
+table td:first-child{text-align:left;font-weight:500;color:var(--navy)}
 
-.g2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-bottom:10px}
-.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
-.g2e{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.panel{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:0;transition:all .2s}
-.panel:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.mb10{margin-bottom:10px}
-
-.pt{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.pt span{font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--dim)}
-
-/* ── TABLE ── */
-.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
-.bt{width:100%;border-collapse:collapse;font-size:11px;min-width:480px}
-.bt th{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);padding:4px 8px;text-align:right;border-bottom:1px solid var(--brd);white-space:nowrap}
-.bt th:first-child{text-align:left;padding-left:0}
-.bt td{padding:7px 8px;border-bottom:1px solid #F2F4F8;text-align:right;font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap}
-.bt td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--navy);font-size:11px;padding-left:0}
-.bt tr:last-child td{border-bottom:none}
-.bt .tr-tot{font-weight:600;border-top:1.5px solid var(--brd);background:#F7F9FC}
-.bt .tr-tot td{color:var(--navy)}
-
-/* ── BADGES & INDICATORS ── */
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:600;font-family:var(--mono)}
-.badge.ok{background:#ECFDF5;color:#065F46}
-.badge.warn{background:#FEF9C3;color:#78350F}
-.badge.err{background:#FEE2E2;color:#7F1D1D}
-.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
-
-/* ── CHARTS ── */
-.cw{position:relative;width:100%}
-.h150{height:150px}.h180{height:180px}.h200{height:200px}.h220{height:220px}
-
-@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.panel,.kc{animation:fi .2s ease both}
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
-
-/* ── RESPONSIVE ── */
+/* RESPONSIVE */
 @media(max-width:860px){
   .desktop-shell{display:block}
   .sidebar{display:none}
-  .desktop-main{padding:12px 14px 0}
-  #topbar,#modebar,#bottom-nav{display:flex}
-  #app{display:none;height:100vh}
-  .kpi-strip{grid-template-columns:repeat(3,1fr);gap:6px}
-  .kc{padding:10px 9px}
-  .kc-val{font-size:15px}
-  .kc-lbl{font-size:7px}
-  .kc-sub{font-size:8px}
-  .g2,.g3,.g2e{grid-template-columns:1fr}
-  .panel{padding:12px}
-  .tbl-wrap{margin:0 -12px;padding:0 12px}
-  .ib-sep{display:none}
-  .pg-hdr{display:none}
-  .h220{height:180px}
-  .h200{height:160px}
-  .h180{height:140px}
-  .h150{height:130px}
+  .desktop-main{padding:12px 14px}
+  #topbar,#modebar{display:flex}
 }
 @media(min-width:861px){
-  #app{display:block!important}
-  .desktop-shell{display:grid!important}
-}
-@media print{
-  #login,#topbar,#modebar,#bottom-nav,#drawer,#drawer-overlay{display:none!important}
-  .desktop-main{padding:8px}
+  #topbar,#modebar{display:none}
 }
 </style>
 </head>
@@ -225,124 +126,320 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 
 <!-- APP -->
 <div id="app">
-
-  <!-- Mobile top bar -->
   <div id="topbar">
     <div class="tb-title" id="tb-title">Dashboard</div>
     <div class="tb-pill" id="tb-pill">—</div>
   </div>
 
-  <!-- Mobile mode tabs -->
   <div id="modebar">
-    <div class="mb-inner">
-      <div class="mb-tab active" data-mode="day" onclick="setMode('day')">Ngày</div>
-      <div class="mb-tab" data-mode="week" onclick="setMode('week')">Tuần</div>
-      <div class="mb-tab" data-mode="month" onclick="setMode('month')">Tháng</div>
-    </div>
+    <div class="mb-tab active" data-mode="day" onclick="setMode('day')">Ngày</div>
+    <div class="mb-tab" data-mode="week" onclick="setMode('week')">Tuần</div>
+    <div class="mb-tab" data-mode="month" onclick="setMode('month')">Tháng</div>
   </div>
 
-  <!-- Scroll area -->
   <div id="scroll-area">
     <div class="desktop-shell">
-
-      <!-- Desktop sidebar -->
+      <!-- SIDEBAR -->
       <aside class="sidebar">
         <div class="sb-logo">
           <div class="sb-mark">🎮 OGC / OCH</div>
           <div class="sb-sub">Operations Dashboard</div>
         </div>
-        <div class="sb-mode-tabs">
-          <div class="sb-mode-tab active" data-mode="day" onclick="setMode('day')">Ngày</div>
-          <div class="sb-mode-tab" data-mode="week" onclick="setMode('week')">Tuần</div>
-          <div class="sb-mode-tab" data-mode="month" onclick="setMode('month')">Tháng</div>
+        <div class="sb-tabs">
+          <div class="sb-tab active" data-mode="day" onclick="setMode('day')">Ngày</div>
+          <div class="sb-tab" data-mode="week" onclick="setMode('week')">Tuần</div>
+          <div class="sb-tab" data-mode="month" onclick="setMode('month')">Tháng</div>
         </div>
         <div class="sb-sec">
           <div class="sb-sec-lbl" id="sb-lbl">Chọn ngày</div>
-          <div id="sb-list"></div>
+          <div class="sb-items" id="sb-items"></div>
         </div>
-        <hr class="sb-div">
         <div class="sb-bottom">
-          <div class="sb-sec-lbl" style="margin-bottom:5px">Hiển thị</div>
-          <div class="sb-vt">
-            <div class="sb-vt-btn active" id="vt-tot" onclick="setView('total')">Tổng</div>
-            <div class="sb-vt-btn" id="vt-avg" onclick="setView('avg')">TB/ngày</div>
-          </div>
-          <div class="sb-footer">Dữ liệu auto-sync từ Google Sheets<br>Cập nhật: <span id="last-sync">--:--</span></div>
           <button class="sb-logout" onclick="doLogout()">🔒 Đăng xuất</button>
         </div>
       </aside>
 
-      <!-- Main content -->
+      <!-- MAIN CONTENT -->
       <div class="desktop-main">
         <div class="pg-hdr">
-          <div>
-            <div class="pg-title" id="pg-title">Dashboard</div>
-            <div style="font-size:11px;color:var(--mut);margin-top:2px" id="pg-sub"></div>
-          </div>
-          <div class="hdr-pill" id="pg-pill">—</div>
+          <div class="pg-title" id="pg-title">Dashboard</div>
+          <div class="pg-sub" id="pg-sub"></div>
         </div>
 
-        <!-- Alerts Section -->
         <div id="alerts-container"></div>
 
-        <!-- Info Bar -->
-        <div class="info-bar" id="info-bar"></div>
+        <div class="kpi-grid" id="kpi-grid"></div>
 
-        <!-- KPI Strip -->
-        <div class="kpi-strip" id="kpi-strip"></div>
+        <div class="panel">
+          <h3 style="font-size:12px;margin-bottom:12px">Chi tiết theo chi nhánh</h3>
+          <div class="table-wrap">
+            <table id="branch-table">
+              <thead>
+                <tr>
+                  <th>Chi nhánh</th>
+                  <th>Doanh thu</th>
+                  <th>FNET</th>
+                  <th>FNB</th>
+                  <th>Mart</th>
+                  <th>Traffic</th>
+                  <th>NRU</th>
+                  <th>ARPPU (FNET)</th>
+                </tr>
+              </thead>
+              <tbody id="branch-tbody"></tbody>
+            </table>
+          </div>
+        </div>
 
-        <!-- Main Content -->
-        <div id="main-content"></div>
+        <div class="panel">
+          <h3 style="font-size:12px;margin-bottom:12px">Đề xuất cải thiện</h3>
+          <div id="recommendations"></div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Mobile bottom nav -->
-  <div id="bottom-nav">
-    <div class="bn-inner">
-      <button class="bn-btn active" id="bn-day" onclick="setMode('day')">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="bn-lbl">Ngày</span>
-      </button>
-      <button class="bn-btn" id="bn-week" onclick="setMode('week')">
-        <svg viewBox="0 0 24 24"><rect x="3" y="9" width="4" height="12" rx="1"/><rect x="10" y="5" width="4" height="16" rx="1"/><rect x="17" y="2" width="4" height="19" rx="1"/></svg>
-        <span class="bn-lbl">Tuần</span>
-      </button>
-      <button class="bn-btn" id="bn-month" onclick="setMode('month')">
-        <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-        <span class="bn-lbl">Tháng</span>
-      </button>
-      <button class="bn-btn" id="bn-choose" onclick="openDrawer()">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <span class="bn-lbl">Chọn</span>
-      </button>
-      <button class="bn-btn" id="bn-view" onclick="toggleView()">
-        <svg viewBox="0 0 24 24"><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32 2.12 2.12M2 12h3m14 0h3"/></svg>
-        <span class="bn-lbl" id="bn-view-lbl">Tổng</span>
-      </button>
+<script>
+// ==================== CONFIG ====================
+const PASSWORD = "ogc2024";
+const SHEET_ID = "1evs_g8zR1UfGcAzvDI4ZvLCQWPiMCw6IGrK55rmjxJc";
+const API_KEY = "YOUR_GOOGLE_API_KEY"; // Bạn cần cấp API key
+
+let currentMode = 'day';
+let currentDate = new Date('2026-04-15');
+let allData = { daily: {}, weekly: {}, monthly: {} };
+
+// ==================== LOGIN ====================
+function doLogin() {
+  const pw = document.getElementById('pw').value;
+  if (pw === PASSWORD) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initDashboard();
+  } else {
+    document.getElementById('pw-err').textContent = 'Mật khẩu không đúng!';
+  }
+}
+
+function doLogout() {
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pw').value = '';
+  document.getElementById('pw-err').textContent = '';
+}
+
+// ==================== DATA ====================
+function initDashboard() {
+  // Dữ liệu mẫu - trong thực tế lấy từ Google Sheets
+  loadSampleData();
+  setMode('day');
+  renderDashboard();
+}
+
+function loadSampleData() {
+  // Dữ liệu 2026-04-15 (hôm nay)
+  allData.daily = {
+    '2026-04-15': {
+      date: '2026-04-15',
+      chain: {
+        dt: 180000000,
+        fnet: 108000000,
+        fnb: 45000000,
+        mart: 27000000,
+        traffic: 2400,
+        nru: 400,
+        ord_fnet: 1400,
+        ord_fnb: 950,
+        ord_mart: 1250,
+        arppu_fnet: 410000
+      },
+      branches: {
+        'Stadium': { dt: 52000000, fnet: 32000000, fnb: 13000000, mart: 7000000, traffic: 600, nru: 95, arppu_fnet: 84000 },
+        'Tây Sơn': { dt: 28000000, fnet: 16000000, fnb: 7000000, mart: 5000000, traffic: 380, nru: 65, arppu_fnet: 62000 },
+        'Chiến Thắng': { dt: 22000000, fnet: 13000000, fnb: 5500000, mart: 3500000, traffic: 300, nru: 50, arppu_fnet: 68000 },
+        'LL Quân': { dt: 30000000, fnet: 18000000, fnb: 7500000, mart: 4500000, traffic: 420, nru: 75, arppu_fnet: 75000 },
+        'TQ Hoàn': { dt: 26000000, fnet: 15000000, fnb: 7000000, mart: 4000000, traffic: 350, nru: 65, arppu_fnet: 72000 },
+        'Trần Vỹ': { dt: 22000000, fnet: 14000000, fnb: 5000000, mart: 3000000, traffic: 350, nru: 50, arppu_fnet: 78000 }
+      }
+    }
+  };
+
+  // Tính toán trung bình
+  allData.avgDaily = {
+    dt: 165000000,
+    fnet: 98000000,
+    fnb: 42000000,
+    mart: 25000000,
+    traffic: 2200,
+    nru: 370,
+    arppu_fnet: 395000
+  };
+}
+
+// ==================== RENDER ====================
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.sb-tab, .mb-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.mode === mode);
+  });
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const data = allData.daily['2026-04-15'];
+  
+  // Title
+  document.getElementById('pg-title').textContent = 
+    currentMode === 'day' ? 'Dashboard Ngày 15/04/2026' :
+    currentMode === 'week' ? 'Dashboard Tuần 2 Tháng 4' : 'Dashboard Tháng 4';
+
+  // Alerts
+  renderAlerts(data);
+
+  // KPIs
+  renderKPIs(data);
+
+  // Table
+  renderBranchTable(data);
+
+  // Recommendations
+  renderRecommendations(data);
+}
+
+function renderAlerts(data) {
+  const alerts = [];
+  const chain = data.chain;
+  const avg = allData.avgDaily;
+
+  // Cảnh báo doanh thu
+  if (chain.dt < avg.dt * 0.9) {
+    alerts.push({
+      type: 'warning',
+      title: 'Cảnh báo Doanh thu',
+      msg: `Doanh thu hôm nay (${format(chain.dt)}) thấp hơn 10% so với trung bình (${format(avg.dt)})`
+    });
+  }
+
+  // Cảnh báo NRU
+  if (chain.nru < avg.nru * 0.85) {
+    alerts.push({
+      type: 'danger',
+      title: 'Cảnh báo NRU',
+      msg: `Số khách hàng (${chain.nru}) thấp hơn 15% so với trung bình (${avg.nru})`
+    });
+  }
+
+  // Cảnh báo Traffic
+  if (chain.traffic < avg.traffic * 0.8) {
+    alerts.push({
+      type: 'danger',
+      title: 'Cảnh báo Traffic',
+      msg: `Lưu lượng (${chain.traffic}) giảm 20% so với trung bình`
+    });
+  }
+
+  const html = alerts.map(a => `
+    <div class="alert-banner ${a.type}">
+      <div class="alert-icon">⚠️</div>
+      <div>
+        <div style="font-weight:600">${a.title}</div>
+        <div class="alert-text">${a.msg}</div>
+      </div>
     </div>
-  </div>
-</div>
+  `).join('');
 
-<!-- Drawer -->
-<div id="drawer-overlay" onclick="closeDrawer()"></div>
-<div id="drawer">
-  <div class="dr-head">
-    <span class="dr-head-title" id="dr-title">Chọn</span>
-    <button class="dr-close" onclick="closeDrawer()">✕</button>
-  </div>
-  <div class="dr-modes">
-    <div class="dr-mode active" data-mode="day" onclick="drSetMode('day')">Ngày</div>
-    <div class="dr-mode" data-mode="week" onclick="drSetMode('week')">Tuần</div>
-    <div class="dr-mode" data-mode="month" onclick="drSetMode('month')">Tháng</div>
-  </div>
-  <div class="dr-toggle" id="dr-toggle" style="display:none">
-    <div class="dr-toggle-btn active" id="dr-tot" onclick="setView('total');renderDrToggle()">Tổng</div>
-    <div class="dr-toggle-btn" id="dr-avg" onclick="setView('avg');renderDrToggle()">TB/ngày</div>
-  </div>
-  <div class="dr-list" id="dr-list"></div>
-</div>
+  document.getElementById('alerts-container').innerHTML = html;
+}
 
-<script src="app.js"></script>
+function renderKPIs(data) {
+  const chain = data.chain;
+  const avg = allData.avgDaily;
+
+  const kpis = [
+    { label: 'Doanh thu', val: chain.dt, avg: avg.dt, unit: 'đ' },
+    { label: 'FNET', val: chain.fnet, avg: avg.fnet, unit: 'đ' },
+    { label: 'FNB', val: chain.fnb, avg: avg.fnb, unit: 'đ' },
+    { label: 'Mart', val: chain.mart, avg: avg.mart, unit: 'đ' },
+    { label: 'Traffic', val: chain.traffic, avg: avg.traffic, unit: 'lượt' },
+    { label: 'NRU', val: chain.nru, avg: avg.nru, unit: 'người' },
+  ];
+
+  const html = kpis.map(kpi => {
+    const pct = ((kpi.val - kpi.avg) / kpi.avg * 100).toFixed(1);
+    const trend = pct >= 0 ? 'up' : 'down';
+    const status = kpi.val < kpi.avg * 0.85 ? 'danger' : kpi.val < kpi.avg * 0.95 ? 'warning' : '';
+
+    return `
+      <div class="kpi-card ${status}">
+        <div class="kpi-lbl">${kpi.label}</div>
+        <div class="kpi-val">${format(kpi.val)}</div>
+        <div class="kpi-sub">${kpi.unit}</div>
+        <div class="kpi-trend ${trend}">
+          ${trend === 'up' ? '↑' : '↓'} ${Math.abs(pct)}%
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('kpi-grid').innerHTML = html;
+}
+
+function renderBranchTable(data) {
+  const branches = data.branches;
+  const html = Object.entries(branches).map(([name, br]) => `
+    <tr>
+      <td>${name}</td>
+      <td>${format(br.dt)}</td>
+      <td>${format(br.fnet)}</td>
+      <td>${format(br.fnb)}</td>
+      <td>${format(br.mart)}</td>
+      <td>${br.traffic}</td>
+      <td>${br.nru}</td>
+      <td>${format(br.arppu_fnet)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('branch-tbody').innerHTML = html;
+}
+
+function renderRecommendations(data) {
+  const chain = data.chain;
+  const avg = allData.avgDaily;
+  const recs = [];
+
+  if (chain.traffic < avg.traffic) {
+    recs.push('📱 <strong>Tăng marketing:</strong> Traffic giảm, tăng quảng cáo trên mạng xã hội và Google Ads');
+  }
+
+  if (chain.nru < avg.nru) {
+    recs.push('👥 <strong>Chương trình khuyến mãi:</strong> Tăng số lượng khách mới với discount cho khách hàng lần đầu');
+  }
+
+  if (chain.dt < avg.dt) {
+    recs.push('💰 <strong>Upsell & Cross-sell:</strong> Tập trung bán thêm sản phẩm giá cao cho khách hiện tại');
+  }
+
+  if (chain.arppu_fnet < avg.arppu_fnet) {
+    recs.push('🎁 <strong>Bundle sản phẩm:</strong> Tạo gói combo để tăng giá trị trung bình đơn hàng');
+  }
+
+  const html = recs.map(r => `<div style="padding:8px;border-left:3px solid #1A6FE0;margin-bottom:8px">${r}</div>`).join('');
+  document.getElementById('recommendations').innerHTML = html;
+}
+
+// ==================== HELPERS ====================
+function format(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+  return num.toFixed(0);
+}
+
+// Load on start
+window.onload = () => {
+  document.getElementById('pw').focus();
+};
+</script>
+
 </body>
 </html>

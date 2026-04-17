@@ -616,66 +616,32 @@ function loadLiveData() {
   if (!API_URL) return Promise.resolve(false);
 
   return new Promise((resolve) => {
-    const cbName = '_ogcCb_' + Date.now();
-    const script = document.createElement('script');
-    let settled = false;
-
-    const done = (ok) => {
-      if (settled) return;
-      settled = true;
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      resolve(ok);
-    };
-
-    // JSONP: GAS gọi window[cbName](data)
-    window[cbName] = (data) => {
-      try {
+    // Sử dụng fetch trực tiếp (GAS hỗ trợ CORS nếu public)
+    fetch(API_URL + '?t=' + Date.now(), {
+      method: 'GET',
+      mode: 'cors'  // Cho phép CORS
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(data => {
         const ok = injectLiveData(data);
         if (ok) {
           const lastDate = Object.keys(DAILY).sort().pop() || '—';
           showToast('✅ Dữ liệu cập nhật đến ' + lastDate, 'success');
           _dataLoaded = true;
+        } else {
+          showToast('⚠️ API không trả về dữ liệu hợp lệ', 'warn');
         }
-        done(ok);
-      } catch(e) {
-        done(false);
-      }
-    };
-
-    script.onerror = () => {
-      // JSONP thất bại → thử fetch thường (hoạt động khi cùng origin / Vercel proxy)
-      fetch(API_URL + '?t=' + Date.now())
-        .then(r => r.json())
-        .then(data => {
-          const ok = injectLiveData(data);
-          if (ok) {
-            const lastDate = Object.keys(DAILY).sort().pop() || '—';
-            showToast('✅ Dữ liệu cập nhật đến ' + lastDate, 'success');
-            _dataLoaded = true;
-          } else {
-            showToast('⚠️ Dữ liệu lưu trữ — mở lại để thử kết nối', 'warn');
-          }
-          done(ok);
-        })
-        .catch(() => {
-          showToast('⚠️ Không thể kết nối — dùng dữ liệu lưu trữ', 'warn');
-          _dataLoaded = true;
-          done(false);
-        });
-    };
-
-    // Timeout 10 giây
-    setTimeout(() => {
-      if (!settled) {
-        showToast('⚠️ Kết nối chậm — dùng dữ liệu lưu trữ', 'warn');
+        resolve(ok);
+      })
+      .catch(err => {
+        console.error('Lỗi load dữ liệu:', err);
+        showToast('⚠️ Không thể kết nối — dùng dữ liệu lưu trữ', 'warn');
         _dataLoaded = true;
-        done(false);
-      }
-    }, 10000);
-
-    script.src = API_URL + '?callback=' + cbName + '&t=' + Date.now();
-    document.head.appendChild(script);
+        resolve(false);
+      });
   });
 }
 

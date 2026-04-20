@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OGC / OCH — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Reset & tokens ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D1A;--bg2:#13131F;--bg3:#1A1A2E;
+  --card:#1E1E30;--card2:#242438;
+  --red:#FF0032;--red2:#CC0028;
+  --green:#00C48C;--gold:#F5A623;--blue:#4A90E2;--purple:#A855F7;--pink:#F472B6;
+  --text:#E8E8F0;--sub:#8888AA;
+  --border:rgba(255,255,255,.07);--r:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+
+/* ── LOGIN ── */
+#gate{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.lbox{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center}
+.llogo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.llogo .dot{width:12px;height:12px;border-radius:50%;background:var(--red);flex-shrink:0}
+.llogo h1{font-size:17px;font-weight:700;letter-spacing:.3px}
+.lsub{font-size:12px;color:var(--sub);margin-bottom:28px}
+.lroles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.lrole{padding:10px 6px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:500;color:var(--sub);transition:all .15s;background:var(--bg3)}
+.lrole:hover{border-color:var(--red);color:var(--text)}
+.lrole.sel{border-color:var(--red);background:rgba(255,0,50,.1);color:var(--text)}
+.lrole .icon{font-size:20px;display:block;margin-bottom:4px}
+.lbox input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-size:15px;text-align:center;letter-spacing:5px;outline:none;margin-bottom:12px;transition:border-color .2s}
+.lbox input:focus{border-color:var(--red)}
+.lbox input::placeholder{letter-spacing:0;font-size:13px;color:var(--sub)}
+.lbtn{width:100%;background:var(--red);border:none;color:#fff;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.lbtn:hover{background:var(--red2)}
+.lerr{font-size:12px;color:var(--red);margin-top:10px;min-height:18px}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hlogo{display:flex;align-items:center;gap:10px}
+.hlogo .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.hlogo h1{font-size:15px;font-weight:700}
+.hlogo .sub{font-size:11px;color:var(--sub);margin-top:1px}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge-live{display:flex;align-items:center;gap:5px;background:rgba(0,196,140,.1);color:var(--green);border:1px solid rgba(0,196,140,.25);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600}
+.badge-live .p{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.badge-role{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--sub)}
+.upd{font-size:11px;color:var(--sub)}
+.hbtn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:background .15s}
+.hbtn:hover{background:var(--bg3)}
+.hbtn.out{border-color:rgba(255,0,50,.25);color:rgba(255,100,100,.8)}
+.hbtn.out:hover{background:rgba(255,0,50,.08)}
+
+/* ── TABS ── */
+.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px 0;display:flex;gap:3px;overflow-x:auto}
+.tab{padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px 7px 0 0;color:var(--sub);border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all .15s}
+.tab.on{background:var(--bg);color:var(--text);border-color:var(--border);border-bottom-color:var(--bg)}
+.tab:hover:not(.on){color:var(--text)}
+
+/* ── PAGES ── */
+.wrap{padding:20px;max-width:1400px;margin:0 auto}
+.pg{display:none}.pg.on{display:block}
+
+/* ── LOADER ── */
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:14px}
+.spin{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader p{color:var(--sub);font-size:13px}
+
+/* ── ALERTS ── */
+.alert{border-radius:var(--r);padding:12px 16px;font-size:13px;margin-bottom:14px;line-height:1.6}
+.alert.warn{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);color:var(--gold)}
+.alert.err{background:rgba(255,0,50,.08);border:1px solid rgba(255,0,50,.2);color:var(--red)}
+.alert.info{background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);color:var(--blue)}
+
+/* ── KPI CARDS ── */
+.kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-bottom:20px}
+.kcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden}
+.kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--red))}
+.kcard .lbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.kcard .val{font-size:22px;font-weight:800;line-height:1;color:var(--text)}
+.kcard .s{font-size:11px;color:var(--sub);margin-top:5px}
+.kcard .chg{font-size:12px;font-weight:600;margin-top:3px}
+.up{color:var(--green)}.dn{color:var(--red)}.neu{color:var(--sub)}
+
+/* ── SECTION ── */
+.sec{margin-bottom:22px}
+.stit{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--sub);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.stit::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── TABLES ── */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--card2);font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
+th:first-child{text-align:left}
+td{padding:9px 12px;border-top:1px solid var(--border);text-align:right;font-size:13px;white-space:nowrap}
+td:first-child{text-align:left;font-weight:500}
+tr:hover td{background:rgba(255,255,255,.02)}
+.tfoot td{background:var(--card2);font-weight:700;border-top:2px solid rgba(255,255,255,.13)}
+
+/* ── BRANCH PILL ── */
+.bp{display:inline-flex;align-items:center;gap:6px}
+.bdt{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── PCT BADGE ── */
+.pb{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.phi{background:rgba(0,196,140,.14);color:var(--green)}
+.pmd{background:rgba(245,166,35,.14);color:var(--gold)}
+.plo{background:rgba(255,0,50,.14);color:var(--red)}
+
+/* ── RANK CARDS ── */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:5px}
+.rc.g{border-color:rgba(245,166,35,.35);background:linear-gradient(135deg,var(--card),rgba(245,166,35,.06))}
+
+/* ── CHARTS ── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:740px){.cgrid{grid-template-columns:1fr}}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.cc h3{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.cc canvas{max-height:230px}
+
+/* ── SETTINGS ── */
+.sw{max-width:560px;margin:0 auto}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.sc h2{font-size:13px;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld label{display:block;font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.fld input,.fld select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px}
+.fld input:focus{border-color:var(--red)}
+.bsave{background:var(--red);border:none;color:#fff;border-radius:7px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer}
+.bsave:hover{background:var(--red2)}
+code{background:rgba(255,255,255,.07);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:11px}
+</style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN GATE ════════════ -->
+<div id="gate">
+  <div class="lbox">
+    <div class="llogo"><div class="dot"></div><h1>OGC / OCH DASHBOARD</h1></div>
+    <div class="lsub">OEG Cyber Hub — Hệ thống báo cáo vận hành</div>
+
+    <div class="lroles">
+      <div class="lrole" onclick="selRole(this,'admin')">
+        <span class="icon">🔑</span>Admin
+      </div>
+      <div class="lrole" onclick="selRole(this,'manager')">
+        <span class="icon">📊</span>Manager
+      </div>
+      <div class="lrole" onclick="selRole(this,'staff')">
+        <span class="icon">👤</span>Staff
+      </div>
+    </div>
+
+    <input type="password" id="pw" placeholder="Nhập mật khẩu" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Đăng nhập</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<!-- ════════════ APP ════════════ -->
+<div id="app" style="display:none">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hlogo">
+      <div class="dot"></div>
+      <div>
+        <h1>OGC / OCH DASHBOARD</h1>
+        <div class="sub">OEG Cyber Hub — Hệ thống báo cáo vận hành</div>
+      </div>
+    </div>
+    <div class="hright">
+      <div class="badge-live"><div class="p"></div>Live</div>
+      <span class="badge-role" id="roleTag">—</span>
+      <span class="upd" id="upd">—</span>
+      <button class="hbtn" onclick="refresh()">↻ Refresh</button>
+      <button class="hbtn out" onclick="doLogout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on"  onclick="go('daily')">📅 Hôm nay</div>
+    <div class="tab"     onclick="go('weekly')">📋 Tuần này</div>
+    <div class="tab"     onclick="go('monthly')">📊 Tháng</div>
+    <div class="tab"     onclick="go('charts')">📈 Biểu đồ</div>
+    <div class="tab admin-only" onclick="go('settings')" style="display:none">⚙ Cài đặt</div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LOADER -->
+    <div class="loader" id="loader">
+      <div class="spin"></div>
+      <p id="lmsg">Đang tải dữ liệu từ Google Sheets…</p>
+    </div>
+
+    <!-- ── DAILY ── -->
+    <div class="pg" id="pg-daily">
+      <div id="daily-warn"></div>
+      <div class="kgrid" id="kgrid"></div>
+      <div class="sec">
+        <div class="stit">Chi tiết theo cơ sở — Hôm nay</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>Cơ sở</th>
+            <th>DT hôm nay</th><th>DT hôm qua</th><th>% Thay đổi</th>
+            <th>Fnet</th><th>FnB</th><th>Mart</th>
+            <th>Lượt nạp</th><th>NRU</th>
+            <th>Lũy kế T.</th><th>% KPI T.</th>
+          </tr></thead>
+          <tbody id="dtbody"></tbody>
+        </table></div>
+      </div>
+      <div class="sec" id="rank-sec">
+        <div class="stit">🏆 Ranking hôm nay</div>
+        <div class="rgrid" id="rgrid"></div>
+      </div>
+    </div>
+
+    <!-- ── WEEKLY ── -->
+    <div class="pg" id="pg-weekly">
+      <div class="kgrid" id="wkgrid"></div>
+      <div class="sec">
+        <div class="stit">Chi tiết tuần này — theo cơ sở</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>Cơ sở</th><th>DT tuần</th><th>Fnet</th><th>FnB</th><th>Mart</th>
+            <th>Traffic</th><th>NRU</th><th>% KPI T.</th><th>vs Tuần trước</th>
+          </tr></thead>
+          <tbody id="wtbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ── MONTHLY ── -->
+    <div class="pg" id="pg-monthly">
+      <div class="sec">
+        <div class="stit">Kết quả theo tháng — tất cả cơ sở</div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>Tháng</th><th>Cơ sở</th>
+            <th>Doanh thu đạt</th><th>KPI tháng</th><th>% Hoàn thành</th>
+            <th>Fnet</th><th>FnB</th><th>Mart</th><th>TB/ngày</th>
+          </tr></thead>
+          <tbody id="mtbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ── CHARTS ── -->
+    <div class="pg" id="pg-charts">
+      <div class="cgrid">
+        <div class="cc"><h3>Doanh thu 30 ngày — theo cơ sở</h3><canvas id="cTrend"></canvas></div>
+        <div class="cc"><h3>Cơ cấu doanh thu hôm nay</h3><canvas id="cMix"></canvas></div>
+        <div class="cc"><h3>% hoàn thành KPI tháng</h3><canvas id="cKpi"></canvas></div>
+        <div class="cc"><h3>NRU & Lượt nạp hôm nay</h3><canvas id="cNru"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS (admin only) ── -->
+    <div class="pg" id="pg-settings">
+      <div class="sw">
+        <div class="sc">
+          <h2>Quản lý mật khẩu</h2>
+          <div class="alert info" style="margin-bottom:14px">
+            Để đổi mật khẩu, sửa trực tiếp trong <code>Code.gs</code> phần <code>const ROLES</code> rồi deploy lại.
+          </div>
+          <table style="width:100%">
+            <thead><tr><th style="text-align:left">Role</th><th style="text-align:left">Mật khẩu hiện tại</th><th style="text-align:left">Quyền hạn</th></tr></thead>
+            <tbody>
+              <tr><td>🔑 Admin</td><td><code>admin2026</code></td><td>Xem toàn bộ + Settings</td></tr>
+              <tr><td>📊 Manager</td><td><code>manager2026</code></td><td>Xem toàn bộ chi tiết</td></tr>
+              <tr><td>👤 Staff</td><td><code>staff2026</code></td><td>Chỉ xem tổng chain</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sc">
+          <h2>Thông tin hệ thống</h2>
+          <table style="width:100%">
+            <tbody>
+              <tr><td style="color:var(--sub);width:140px">Sheet ID</td><td><code id="sSheetId">—</code></td></tr>
+              <tr><td style="color:var(--sub)">Sheet DAILY</td><td><code id="sDaily">—</code></td></tr>
+              <tr><td style="color:var(--sub)">Sheet WEEKLY</td><td><code id="sWeekly">—</code></td></tr>
+              <tr><td style="color:var(--sub)">Sheet MONTHLY</td><td><code id="sMonthly">—</code></td></tr>
+              <tr><td style="color:var(--sub)">Lần cập nhật</td><td id="sUpdated">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let STATE = { role: null, label: null, data: null };
+let CHARTS = {};
+
+// Branch color map
+const BC = {
+  'stadium':'#FF0032', 'tây sơn':'#4A90E2', 'tay son':'#4A90E2',
+  'll quân':'#00C48C', 'll quan':'#00C48C',
+  'trần vỹ':'#F5A623', 'tran vy':'#F5A623',
+  'tq hoàn':'#A855F7', 'tq hoan':'#A855F7',
+  'chiến thắng':'#F472B6', 'chien thang':'#F472B6',
+};
+function bColor(name) {
+  if (!name) return '#8888AA';
+  const n = name.toLowerCase();
+  for (const [k, v] of Object.entries(BC)) if (n.includes(k.slice(0,5))) return v;
+  let h = 0; for (let i=0;i<n.length;i++) h=(h<<5)-h+n.charCodeAt(i);
+  return `hsl(${Math.abs(h)%360},60%,55%)`;
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+let selectedRole = null;
+function selRole(el, role) {
+  document.querySelectorAll('.lrole').forEach(r => r.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedRole = role;
+}
+
+function doLogin() {
+  const pw = document.getElementById('pw').value.trim();
+  if (!pw) { showErr('Nhập mật khẩu'); return; }
+  document.getElementById('lerr').textContent = '';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res.ok) { showErr('Mật khẩu không đúng'); document.getElementById('pw').value=''; return; }
+      STATE.role  = res.role;
+      STATE.label = res.label;
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display  = 'block';
+      document.getElementById('roleTag').textContent = res.label;
+      // Admin tab
+      if (res.role === 'admin') {
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+      }
+      fetchData();
+    })
+    .withFailureHandler(e => showErr('Lỗi: ' + e.message))
+    .checkPassword(pw);
+}
+
+function showErr(msg) { document.getElementById('lerr').textContent = msg; }
+
+function doLogout() {
+  STATE = { role:null, label:null, data:null };
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display  = 'none';
+  document.getElementById('pw').value = '';
+  document.getElementById('lerr').textContent = '';
+  document.querySelectorAll('.lrole').forEach(r=>r.classList.remove('sel'));
+  selectedRole = null;
+}
+
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+function fetchData() {
+  showLoader('Đang đọc dữ liệu từ Google Sheets…');
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { hideLoader(); showGlobalErr(d.error); return; }
+      STATE.data = d;
+      hideLoader();
+      renderAll();
+      const t = new Date(d.ts);
+      document.getElementById('upd').textContent =
+        'Cập nhật: ' + t.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    })
+    .withFailureHandler(e => { hideLoader(); showGlobalErr(e.message); })
+    .getData(STATE.role);
+}
+
+function refresh() { fetchData(); }
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function renderAll() {
+  if (STATE.data.daily)   renderDaily(STATE.data.daily);
+  if (STATE.data.weekly)  renderWeekly(STATE.data.weekly);
+  if (STATE.data.monthly) renderMonthly(STATE.data.monthly);
+  go('daily');
+}
+
+// ── DAILY ────────────────────────────────────────────────────
+function renderDaily(d) {
+  const B = d.branches || [];
+  const T = d.total    || {};
+
+  // Warn nếu không có dữ liệu chi tiết
+  document.getElementById('daily-warn').innerHTML = (!B.length && STATE.role !== 'staff')
+    ? '<div class="alert warn">Chưa tìm thấy dữ liệu theo cơ sở trong sheet DASHBOARD_NGÀY. Kiểm tra tên sheet trong Code.gs.</div>'
+    : '';
+
+  // KPI cards
+  const cards = [
+    { l:'Tổng DT hôm nay', v:fmt(T.dtToday), s:'toàn chain', a:'var(--red)' },
+    { l:'Lũy kế tháng',    v:fmt(T.cumMonth),s:pctBadge(pctN(T.pctKpiM))+' KPI tháng', a:'var(--gold)' },
+    { l:'Fnet (Gaming)',   v:fmt(T.dtFnet),  s:'doanh thu Net', a:'var(--blue)' },
+    { l:'FnB',             v:fmt(T.dtFnb),   s:'doanh thu F&B', a:'var(--green)' },
+    { l:'Mart',            v:fmt(T.dtMart),  s:'doanh thu Mart', a:'var(--purple)' },
+    { l:'Lượt nạp',       v:num(T.deposits),s:'giao dịch hôm nay', a:'var(--sub)' },
+    { l:'NRU mới',         v:num(T.nru),     s:'tài khoản hôm nay', a:'var(--pink)' },
+  ];
+  document.getElementById('kgrid').innerHTML = cards.map(c =>
+    `<div class="kcard" style="--accent:${c.a}">
+      <div class="lbl">${c.l}</div>
+      <div class="val">${c.v}</div>
+      <div class="s">${c.s}</div>
+    </div>`
+  ).join('');
+
+  // Table
+  const tbody = document.getElementById('dtbody');
+  tbody.innerHTML = '';
+  B.forEach(b => {
+    const pN = pctN(b.pctKpiM);
+    const chgCls = b.pctChg.includes('+') ? 'up' : b.pctChg.includes('-') ? 'dn' : 'neu';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="bp"><span class="bdt" style="background:${bColor(b.name)}"></span>${b.name}</span></td>
+      <td><strong>${fmt(b.dtToday)}</strong></td>
+      <td>${fmt(b.dtYest)}</td>
+      <td class="${chgCls}">${b.pctChg||'—'}</td>
+      <td>${fmt(b.dtFnet)}</td><td>${fmt(b.dtFnb)}</td><td>${fmt(b.dtMart)}</td>
+      <td>${num(b.deposits)}</td><td>${num(b.nru)}</td>
+      <td>${fmt(b.cumMonth)}</td><td>${pctBadge(pN,b.pctKpiM)}</td>`;
+    tbody.appendChild(tr);
+  });
+  // Total row
+  if (T.dtToday) {
+    const tr = document.createElement('tr'); tr.className = 'tfoot';
+    const tpN = pctN(T.pctKpiM);
+    tr.innerHTML = `
+      <td>TỔNG CHAIN</td>
+      <td><strong>${fmt(T.dtToday)}</strong></td>
+      <td>${fmt(T.dtYest)}</td><td>—</td>
+      <td>${fmt(T.dtFnet)}</td><td>${fmt(T.dtFnb)}</td><td>${fmt(T.dtMart)}</td>
+      <td>${num(T.deposits)}</td><td>${num(T.nru)}</td>
+      <td>${fmt(T.cumMonth)}</td><td>${pctBadge(tpN,T.pctKpiM)}</td>`;
+    tbody.appendChild(tr);
+  }
+
+  // Ranking
+  const sorted = [...B].sort((a,b) => b.dtToday - a.dtToday);
+  const medals = ['🥇','🥈','🥉','4.','5.','6.'];
+  document.getElementById('rgrid').innerHTML = sorted.map((b,i) =>
+    `<div class="rc${i===0?' g':''}">
+      <div style="font-size:11px;color:var(--sub)">TOP ${i+1} ${medals[i]||''}</div>
+      <div style="font-size:15px;font-weight:700;color:${bColor(b.name)}">${b.name}</div>
+      <div style="font-size:21px;font-weight:800">${fmt(b.dtToday)}</div>
+      <div>${pctBadge(pctN(b.pctKpiM),b.pctKpiM)} KPI tháng</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:3px">Lũy kế: ${fmt(b.cumMonth)}</div>
+    </div>`
+  ).join('');
+
+  // Hide rank if staff (no branch detail)
+  document.getElementById('rank-sec').style.display = B.length ? '' : 'none';
+}
+
+// ── WEEKLY ───────────────────────────────────────────────────
+function renderWeekly(d) {
+  const B = d.branches || [];
+  const T = d.total    || {};
+
+  document.getElementById('wkgrid').innerHTML = [
+    { l:'Tổng DT tuần',  v:fmt(T.weekRev),  s:'toàn chain', a:'var(--red)' },
+    { l:'NRU tuần',      v:num(T.nru),       s:'tài khoản mới', a:'var(--green)' },
+    { l:'Traffic tuần',  v:num(T.traffic),   s:'lượt vào', a:'var(--blue)' },
+  ].map(c =>
+    `<div class="kcard" style="--accent:${c.a}">
+      <div class="lbl">${c.l}</div><div class="val">${c.v}</div><div class="s">${c.s}</div>
+    </div>`
+  ).join('');
+
+  const tbody = document.getElementById('wtbody');
+  tbody.innerHTML = '';
+  if (!B.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--sub)">Không có dữ liệu</td></tr>';
+    return;
+  }
+  B.forEach(b => {
+    const pN = pctN(b.pctKpiM);
+    const vsClass = String(b.vsLastWk).includes('+') ? 'up' : String(b.vsLastWk).includes('-') ? 'dn' : 'neu';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="bp"><span class="bdt" style="background:${bColor(b.name)}"></span>${b.name}</span></td>
+      <td><strong>${fmt(b.weekRev)}</strong></td>
+      <td>${fmt(b.dtFnet)}</td><td>${fmt(b.dtFnb)}</td><td>${fmt(b.dtMart)}</td>
+      <td>${num(b.traffic)}</td><td>${num(b.nru)}</td>
+      <td>${pctBadge(pN,b.pctKpiM)}</td>
+      <td class="${vsClass}">${b.vsLastWk||'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── MONTHLY ──────────────────────────────────────────────────
+function renderMonthly(rows) {
+  const tbody = document.getElementById('mtbody');
+  tbody.innerHTML = '';
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--sub)">Không có dữ liệu tháng</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const pN = pctN(r.pctKpi);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>T${r.month}</td>
+      <td><span class="bp"><span class="bdt" style="background:${bColor(r.branch)}"></span>${r.branch}</span></td>
+      <td><strong>${fmt(r.achieved)}</strong></td>
+      <td>${fmt(r.kpi)}</td>
+      <td>${pctBadge(pN,r.pctKpi)}</td>
+      <td>${fmt(r.dtFnet)}</td><td>${fmt(r.dtFnb)}</td><td>${fmt(r.dtMart)}</td>
+      <td>${fmt(r.avgDaily)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── CHARTS ───────────────────────────────────────────────────
+function renderCharts() {
+  Object.values(CHARTS).forEach(c => c && c.destroy && c.destroy());
+  CHARTS = {};
+  if (!STATE.data) return;
+
+  const d      = STATE.data;
+  const daily  = d.daily  || {};
+  const trend  = d.trend  || [];
+  const B      = daily.branches || [];
+  const T      = daily.total    || {};
+
+  const cOpts = {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{labels:{color:'#8888AA',font:{size:11}}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} },
+    scales:{
+      x:{ticks:{color:'#555',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#555',font:{size:10},callback:v=>sf(v)},grid:{color:'rgba(255,255,255,.05)'}}
+    }
+  };
+
+  // 1. Trend line chart
+  const dates   = [...new Set(trend.map(r=>r.date))].sort().slice(-20);
+  const bNames  = [...new Set(B.map(b=>b.name))];
+  const trendDS = bNames.map(name => ({
+    label: name, borderColor: bColor(name), backgroundColor:'transparent',
+    borderWidth:2, pointRadius:2, tension:.4,
+    data: dates.map(dt => {
+      const rows = trend.filter(r=>r.branch===name && r.date===dt);
+      return rows.reduce((s,r)=>s+r.dtTotal,0);
+    })
+  })).filter(ds => ds.data.some(v=>v>0));
+
+  if (trendDS.length) {
+    CHARTS.T = new Chart(document.getElementById('cTrend'),{
+      type:'line',
+      data:{ labels:dates.map(d=>d.slice(0,5)), datasets:trendDS },
+      options:cOpts
+    });
+  }
+
+  // 2. Mix donut
+  const totF = T.dtFnet||0, totB = T.dtFnb||0, totM = T.dtMart||0;
+  CHARTS.M = new Chart(document.getElementById('cMix'),{
+    type:'doughnut',
+    data:{
+      labels:['Fnet (Gaming)','FnB','Mart'],
+      datasets:[{ data:[totF,totB,totM], backgroundColor:['#FF0032','#F5A623','#4A90E2'], borderWidth:0 }]
+    },
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom',labels:{color:'#8888AA',font:{size:11},padding:14}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.raw)}`}}}}
+  });
+
+  // 3. KPI bar (horizontal)
+  CHARTS.K = new Chart(document.getElementById('cKpi'),{
+    type:'bar',
+    data:{
+      labels: B.map(b=>b.name),
+      datasets:[{ label:'% KPI tháng', data:B.map(b=>pctN(b.pctKpiM)), backgroundColor:B.map(b=>bColor(b.name)), borderRadius:4 }]
+    },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}%`}}},
+      scales:{
+        x:{min:0,max:110,ticks:{color:'#555',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.05)'}},
+        y:{ticks:{color:'#8888AA',font:{size:11}},grid:{display:false}}
+      }
+    }
+  });
+
+  // 4. NRU & deposits bar
+  CHARTS.N = new Chart(document.getElementById('cNru'),{
+    type:'bar',
+    data:{
+      labels: B.map(b=>b.name),
+      datasets:[
+        { label:'NRU mới',   data:B.map(b=>b.nru),      backgroundColor:B.map(b=>bColor(b.name)+'BB'), borderRadius:4 },
+        { label:'Lượt nạp', data:B.map(b=>b.deposits),  backgroundColor:'rgba(255,255,255,.1)', borderRadius:4 }
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{labels:{color:'#8888AA',font:{size:11}}}},
+      scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#555',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}
+    }
+  });
+}
+
+// ════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════
+const TABS = ['daily','weekly','monthly','charts','settings'];
+function go(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('on', TABS[i]===id));
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  const pg = document.getElementById('pg-'+id);
+  if (pg) pg.classList.add('on');
+  if (id==='charts') renderCharts();
+}
+
+function showLoader(msg) {
+  document.getElementById('lmsg').textContent = msg || 'Đang tải…';
+  document.getElementById('loader').style.display = 'flex';
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+}
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+}
+function showGlobalErr(msg) {
+  const el = document.getElementById('daily-warn');
+  if (el) el.innerHTML = `<div class="alert err">Lỗi: ${msg}</div>`;
+  document.getElementById('pg-daily').classList.add('on');
+}
+
+// ════════════════════════════════════════
+// FORMATTERS
+// ════════════════════════════════════════
+function fmt(v) {
+  if (!v && v!==0) return '—';
+  if (v===0) return '—';
+  if (v>=1e9) return (v/1e9).toFixed(2)+' tỷ';
+  if (v>=1e6) return (v/1e6).toFixed(1)+' tr';
+  return Math.round(v).toLocaleString('vi-VN');
+}
+function num(v) { return (v&&v!==0) ? Math.round(v).toLocaleString('vi-VN') : '—'; }
+function sf(v) {
+  if (v>=1e9) return (v/1e9).toFixed(1)+'B';
+  if (v>=1e6) return (v/1e6).toFixed(0)+'M';
+  return v;
+}
+function pctN(s) {
+  if (!s) return 0;
+  return parseFloat(String(s).replace('%','').replace(',','.').replace(/\s/g,'')) || 0;
+}
+function pctBadge(n, raw) {
+  const cls = n>=90 ? 'phi' : n>=70 ? 'pmd' : 'plo';
+  return `<span class="pb ${cls}">${raw||'—'}</span>`;
+}
+</script>
+</body>
+</html>

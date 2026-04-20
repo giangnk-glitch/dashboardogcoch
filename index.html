@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OGC / OCH — Operations Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+:root {
+  --navy:#0D0D1A; --navy2:#13131F; --navy3:#1A1A2E;
+  --card:#1E1E30; --card2:#242438;
+  --red:#FF0032; --red2:#CC0028;
+  --gold:#F5A623; --green:#00C48C; --blue:#4A90E2;
+  --text:#E8E8F0; --muted:#8888AA;
+  --border:rgba(255,255,255,0.07); --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+
+/* header */
+.header{background:var(--navy2);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hlogo{display:flex;align-items:center;gap:10px}
+.hlogo .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.hlogo h1{font-size:15px;font-weight:600;letter-spacing:.5px}
+.hlogo .sub{font-size:11px;color:var(--muted);margin-top:1px}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(0,196,140,.12);color:var(--green);border:1px solid rgba(0,196,140,.25);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:500}
+.live-badge .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.updated{font-size:11px;color:var(--muted)}
+.btn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--navy3)}
+
+/* tabs */
+.tabs{display:flex;gap:2px;padding:10px 20px 0;background:var(--navy2);border-bottom:1px solid var(--border)}
+.tab{padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px 6px 0 0;color:var(--muted);border:1px solid transparent;border-bottom:none;transition:all .15s}
+.tab.active{background:var(--navy);color:var(--text);border-color:var(--border);border-bottom-color:var(--navy)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* content */
+.content{padding:20px;max-width:1400px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+
+/* loading / error */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:13px}
+.error-box{background:rgba(255,0,50,.08);border:1px solid rgba(255,0,50,.2);border-radius:var(--radius);padding:20px;text-align:center;color:var(--red);line-height:1.7}
+.info-box{background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);border-radius:var(--radius);padding:14px 18px;font-size:13px;color:#4A90E2;margin-bottom:16px;line-height:1.7}
+.info-box code{background:rgba(255,255,255,.1);padding:1px 6px;border-radius:3px;font-family:monospace;font-size:12px}
+
+/* kpi cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.kpi-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-card .value{font-size:22px;font-weight:700;line-height:1}
+.kpi-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* section */
+.section{margin-bottom:24px}
+.section-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* table */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--card2);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;text-align:right;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:9px 12px;border-top:1px solid var(--border);text-align:right;white-space:nowrap;font-size:13px}
+td:first-child{text-align:left;font-weight:500}
+tr:hover td{background:rgba(255,255,255,.03)}
+.total-row td{background:var(--card2);font-weight:600;border-top:2px solid var(--border)}
+
+/* badges */
+.pct-cell{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+.pct-high{background:rgba(0,196,140,.15);color:var(--green)}
+.pct-mid{background:rgba(245,166,35,.15);color:var(--gold)}
+.pct-low{background:rgba(255,0,50,.15);color:var(--red)}
+.up{color:var(--green)}.down{color:var(--red)}
+.branch-pill{display:inline-flex;align-items:center;gap:5px}
+.branch-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* rank cards */
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.rank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px}
+.rank-card.top1{border-color:rgba(245,166,35,.4);background:linear-gradient(135deg,var(--card),rgba(245,166,35,.07))}
+.rank-label{font-size:11px;color:var(--muted)}
+.rank-name{font-size:15px;font-weight:700}
+.rank-rev{font-size:20px;font-weight:800}
+.rank-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* charts */
+.chart-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr;margin-bottom:24px}
+@media(max-width:780px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.chart-card h3{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.chart-card canvas{max-height:220px}
+
+/* config panel */
+.config-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;max-width:680px;margin:0 auto}
+.config-panel h2{font-size:14px;font-weight:600;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.field input{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;outline:none}
+.field input:focus{border-color:rgba(255,0,50,.5)}
+.field .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+.btn-save{background:var(--red);border:none;color:#fff;border-radius:6px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-save:hover{background:var(--red2)}
+.step-list{counter-reset:steps;list-style:none;padding:0}
+.step-list li{counter-increment:steps;padding:8px 0 8px 36px;position:relative;font-size:13px;line-height:1.6;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border:none}
+.step-list li::before{content:counter(steps);position:absolute;left:0;top:8px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hlogo">
+    <div class="dot"></div>
+    <div>
+      <h1>OGC / OCH DASHBOARD</h1>
+      <div class="sub">Hệ thống báo cáo vận hành — OEG Cyber Hub</div>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="live-badge"><div class="pulse"></div>Auto-refresh</div>
+    <span class="updated" id="updatedAt">—</span>
+    <button class="btn" onclick="fetchAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('daily')">Hôm nay</div>
+  <div class="tab" onclick="switchTab('weekly')">Tuần này</div>
+  <div class="tab" onclick="switchTab('monthly')">Tháng</div>
+  <div class="tab" onclick="switchTab('charts')">Biểu đồ</div>
+  <div class="tab" onclick="switchTab('setup')">⚙ Cài đặt</div>
+</div>
+
+<div class="content">
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p id="loadingMsg">Đang tải dữ liệu…</p>
+  </div>
+
+  <!-- DAILY -->
+  <div class="page" id="page-daily">
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="section">
+      <div class="section-title">Chi tiết theo cơ sở — Hôm nay</div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Cơ sở</th><th>Tổng DT</th><th>Fnet</th><th>FnB</th><th>Mart</th>
+          <th>Nạp</th><th>NRU</th><th>Lũy kế T.</th>
+        </tr></thead>
+        <tbody id="dailyBody"></tbody>
+      </table></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Ranking hôm nay</div>
+      <div class="rank-grid" id="rankGrid"></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY -->
+  <div class="page" id="page-weekly">
+    <div class="kpi-grid" id="weekKpiGrid"></div>
+    <div class="section">
+      <div class="section-title">Chi tiết tuần này theo cơ sở</div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Cơ sở</th><th>DT tuần</th><th>Fnet</th><th>FnB</th><th>Mart</th>
+          <th>Traffic</th><th>NRU</th><th>% KPI tháng</th>
+        </tr></thead>
+        <tbody id="weekBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY -->
+  <div class="page" id="page-monthly">
+    <div class="section">
+      <div class="section-title">Kết quả theo tháng</div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Tháng</th><th>Cơ sở</th><th>Đạt được</th><th>KPI</th>
+          <th>% Hoàn thành</th><th>Fnet</th><th>FnB</th><th>Mart</th><th>TB ngày</th>
+        </tr></thead>
+        <tbody id="monthBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="page" id="page-charts">
+    <div class="chart-grid">
+      <div class="chart-card"><h3>Doanh thu 30 ngày — theo cơ sở</h3><canvas id="cTrend"></canvas></div>
+      <div class="chart-card"><h3>Cơ cấu DT hôm nay (Fnet / FnB / Mart)</h3><canvas id="cMix"></canvas></div>
+      <div class="chart-card"><h3>% KPI tháng theo cơ sở</h3><canvas id="cKpi"></canvas></div>
+      <div class="chart-card"><h3>NRU & Lượt nạp hôm nay</h3><canvas id="cNru"></canvas></div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="page" id="page-setup">
+    <div class="config-panel">
+      <h2>Hướng dẫn kết nối Google Sheets</h2>
+
+      <div class="info-box" style="margin-bottom:20px">
+        Dashboard này đọc dữ liệu qua <strong>Google Sheets Published CSV</strong> — miễn phí, không cần backend, không cần API key.
+      </div>
+
+      <div class="section-title" style="margin-bottom:12px">Bước 1 — Publish Sheets của anh</div>
+      <ol class="step-list">
+        <li>Mở file Google Sheets → <strong>File → Share → Publish to web</strong></li>
+        <li>Chọn từng sheet cần dùng → chọn định dạng <code>Comma-separated values (.csv)</code></li>
+        <li>Click <strong>Publish</strong> → copy link</li>
+        <li>Link sẽ có dạng: <code>https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/pub?gid=<strong>GID</strong>&single=true&output=csv</code></li>
+      </ol>
+
+      <div class="section-title" style="margin-bottom:12px;margin-top:20px">Bước 2 — Điền Sheet ID và GID</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Sheet ID của anh là: <code>1evs_g8zR1UfGcAzvDI4ZvLCQWPiMCw6IGrK55rmjxJc</code></p>
+
+      <div class="field">
+        <label>Sheet ID (Google Spreadsheet)</label>
+        <input type="text" id="cfgSheetId" placeholder="1evs_g8zR1UfGcAzvDI4ZvLCQWPiMCw6IGrK55rmjxJc">
+        <div class="hint">Lấy từ URL: .../spreadsheets/d/<strong>ĐÂY</strong>/edit</div>
+      </div>
+      <div class="field">
+        <label>GID — Sheet DASHBOARD_NGÀY</label>
+        <input type="text" id="cfgGidDaily" placeholder="0">
+        <div class="hint">Lấy từ URL khi đang ở tab đó: ...#gid=<strong>ĐÂY</strong></div>
+      </div>
+      <div class="field">
+        <label>GID — Sheet DASHBOARD_TUẦN</label>
+        <input type="text" id="cfgGidWeekly" placeholder="">
+      </div>
+      <div class="field">
+        <label>GID — Sheet _SUMMARY_THÁNG</label>
+        <input type="text" id="cfgGidMonthly" placeholder="">
+      </div>
+      <div class="field">
+        <label>GID — Sheet _DATA (raw data cho biểu đồ)</label>
+        <input type="text" id="cfgGidRaw" placeholder="">
+      </div>
+      <button class="btn-save" onclick="saveConfig()">Lưu & Tải dữ liệu</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────
+const CFG_KEY = 'ogc_dash_cfg';
+
+function loadConfig() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveConfig() {
+  const cfg = {
+    sheetId:    document.getElementById('cfgSheetId').value.trim(),
+    gidDaily:   document.getElementById('cfgGidDaily').value.trim(),
+    gidWeekly:  document.getElementById('cfgGidWeekly').value.trim(),
+    gidMonthly: document.getElementById('cfgGidMonthly').value.trim(),
+    gidRaw:     document.getElementById('cfgGidRaw').value.trim()
+  };
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  fetchAll();
+  switchTab('daily');
+}
+function fillConfigForm() {
+  const c = loadConfig();
+  if (c.sheetId)    document.getElementById('cfgSheetId').value = c.sheetId;
+  if (c.gidDaily)   document.getElementById('cfgGidDaily').value = c.gidDaily;
+  if (c.gidWeekly)  document.getElementById('cfgGidWeekly').value = c.gidWeekly;
+  if (c.gidMonthly) document.getElementById('cfgGidMonthly').value = c.gidMonthly;
+  if (c.gidRaw)     document.getElementById('cfgGidRaw').value = c.gidRaw;
+}
+
+function csvUrl(sheetId, gid) {
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
+}
+
+// ── Fetch ──────────────────────────────────────────────────
+let _state = { daily: null, weekly: null, monthly: null, raw: null };
+let _charts = {};
+
+async function fetchAll() {
+  const cfg = loadConfig();
+  if (!cfg.sheetId) { switchTab('setup'); return; }
+
+  show('loading');
+  document.getElementById('loadingMsg').textContent = 'Đang kết nối Google Sheets…';
+
+  try {
+    const fetches = [];
+    if (cfg.gidDaily)   fetches.push(fetchCSV(csvUrl(cfg.sheetId, cfg.gidDaily)).then(d => _state.daily = d));
+    if (cfg.gidWeekly)  fetches.push(fetchCSV(csvUrl(cfg.sheetId, cfg.gidWeekly)).then(d => _state.weekly = d));
+    if (cfg.gidMonthly) fetches.push(fetchCSV(csvUrl(cfg.sheetId, cfg.gidMonthly)).then(d => _state.monthly = d));
+    if (cfg.gidRaw)     fetches.push(fetchCSV(csvUrl(cfg.sheetId, cfg.gidRaw)).then(d => _state.raw = d));
+
+    await Promise.all(fetches);
+
+    document.getElementById('updatedAt').textContent = 'Cập nhật: ' + new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    renderAll();
+    hide('loading');
+    switchTab('daily');
+  } catch(err) {
+    document.getElementById('loading').innerHTML = `
+      <div class="error-box">
+        <strong>Không tải được dữ liệu</strong><br><br>
+        ${err.message}<br><br>
+        Kiểm tra: Sheets đã được Publish to web chưa?<br>
+        Hoặc vào tab <strong>⚙ Cài đặt</strong> để kiểm tra lại Sheet ID và GID.
+      </div>`;
+    show('loading');
+  }
+}
+
+function fetchCSV(url) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(url, {
+      download: true, header: false, skipEmptyLines: true,
+      complete: r => resolve(r.data),
+      error: e => reject(new Error('CSV fetch failed: ' + e.message))
+    });
+  });
+}
+
+// ── Colors ─────────────────────────────────────────────────
+const COLORS = {
+  'Stadium':'#FF0032','Tây Sơn':'#4A90E2','LL Quân':'#00C48C',
+  'Trần Vỹ':'#F5A623','TQ Hoàn':'#A855F7','Chiến Thắng':'#F472B6'
+};
+function bColor(name) {
+  for (const [k,v] of Object.entries(COLORS)) if (name.includes(k)) return v;
+  return '#8888AA';
+}
+
+// ── Render all ─────────────────────────────────────────────
+function renderAll() {
+  if (_state.daily)   renderDaily(_state.daily);
+  if (_state.weekly)  renderWeekly(_state.weekly);
+  if (_state.monthly) renderMonthly(_state.monthly);
+}
+
+// ── DAILY parse ───────────────────────────────────────────
+// Expects DASHBOARD_NGÀY published as CSV
+// Row 5 = report date (col 4)
+// Rows 7-12 = branch rows
+// Row 13 = total
+function renderDaily(rows) {
+  const reportDate = safeGet(rows, 4, 4) || '—';
+
+  const branchRows = [];
+  for (let r = 6; r <= 11; r++) {
+    const row = rows[r];
+    if (!row || !row[0]) continue;
+    branchRows.push({
+      name:     row[0]||'',
+      dtToday:  toN(row[1]),
+      dtYest:   toN(row[2]),
+      pctChg:   row[3]||'',
+      kpiDay:   toN(row[4]),
+      pctKpiD:  row[5]||'',
+      deposits: toN(row[6]),
+      fnbOrd:   toN(row[7]),
+      martOrd:  toN(row[8]),
+      nru:      toN(row[9]),
+      dtFnet:   toN(row[10]),
+      dtFnb:    toN(row[11]),
+      dtMart:   toN(row[12]),
+      cumMonth: toN(row[13]),
+      kpiMonth: toN(row[14]),
+      pctKpiM:  row[15]||''
+    });
+  }
+  const total = rows[12] || [];
+
+  // KPI cards
+  const totDt    = toN(total[1]);
+  const totCum   = toN(total[13]);
+  const totFnet  = toN(total[10]);
+  const totFnb   = toN(total[11]);
+  const totMart  = toN(total[12]);
+  const totNap   = toN(total[6]);
+  const totNru   = toN(total[9]);
+  const totPctM  = total[15]||'';
+
+  document.getElementById('kpiGrid').innerHTML = [
+    { label:'Tổng DT hôm nay',  value:fmt(totDt),  sub:'toàn chain' },
+    { label:'Lũy kế tháng',     value:fmt(totCum), sub:totPctM+' KPI tháng' },
+    { label:'Fnet (Gaming)',     value:fmt(totFnet),sub:'doanh thu' },
+    { label:'FnB',               value:fmt(totFnb), sub:'doanh thu' },
+    { label:'Mart',              value:fmt(totMart),sub:'doanh thu' },
+    { label:'Lượt nạp',         value:num(totNap), sub:'giao dịch' },
+    { label:'NRU mới',          value:num(totNru), sub:'tài khoản' },
+  ].map(k=>`<div class="kpi-card"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>`).join('');
+
+  // Table
+  const tbody = document.getElementById('dailyBody');
+  tbody.innerHTML = '';
+  branchRows.forEach(b => {
+    const pctM = parseFloat(String(b.pctKpiM).replace('%','').replace(',','.')) || 0;
+    const color = bColor(b.name);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="branch-pill"><span class="branch-dot" style="background:${color}"></span>${b.name}</span></td>
+      <td><strong>${fmt(b.dtToday)}</strong></td>
+      <td>${fmt(b.dtFnet)}</td><td>${fmt(b.dtFnb)}</td><td>${fmt(b.dtMart)}</td>
+      <td>${num(b.deposits)}</td><td>${num(b.nru)}</td>
+      <td>${pctBadge(pctM,b.pctKpiM)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const tr = document.createElement('tr'); tr.className='total-row';
+  const pctT = parseFloat(String(totPctM).replace('%','').replace(',','.')) || 0;
+  tr.innerHTML = `<td>TỔNG CHAIN</td><td><strong>${fmt(totDt)}</strong></td><td>${fmt(totFnet)}</td><td>${fmt(totFnb)}</td><td>${fmt(totMart)}</td><td>${num(totNap)}</td><td>${num(totNru)}</td><td>${pctBadge(pctT,totPctM)}</td>`;
+  tbody.appendChild(tr);
+
+  // Ranking
+  const sorted = [...branchRows].sort((a,b)=>b.dtToday-a.dtToday);
+  const medals = ['🥇','🥈','🥉','4','5','6'];
+  document.getElementById('rankGrid').innerHTML = sorted.map((b,i) => {
+    const color = bColor(b.name);
+    const pctM = parseFloat(String(b.pctKpiM).replace('%','').replace(',','.')) || 0;
+    return `<div class="rank-card${i===0?' top1':''}">
+      <div class="rank-label">${medals[i]} TOP ${i+1}</div>
+      <div class="rank-name" style="color:${color}">${b.name}</div>
+      <div class="rank-rev">${fmt(b.dtToday)}</div>
+      <div>${pctBadge(pctM,b.pctKpiM)} KPI tháng</div>
+      <div class="rank-sub">Lũy kế: ${fmt(b.cumMonth)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── WEEKLY parse ──────────────────────────────────────────
+function renderWeekly(rows) {
+  const branchRows = [];
+  for (let r = 11; r <= 16; r++) {
+    const row = rows[r];
+    if (!row || !row[0]) continue;
+    branchRows.push({
+      name:    row[0],
+      weekRev: toN(row[1]),
+      fnet:    toN(row[2]),
+      fnb:     toN(row[3]),
+      mart:    toN(row[4]),
+      traffic: toN(row[5]),
+      nru:     toN(row[6]),
+      pctKpiM: row[15]||''
+    });
+  }
+  const totRev = branchRows.reduce((s,b)=>s+b.weekRev,0);
+  const totNru = branchRows.reduce((s,b)=>s+b.nru,0);
+
+  document.getElementById('weekKpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="label">Tổng DT tuần</div><div class="value">${fmt(totRev)}</div><div class="sub">toàn chain</div></div>
+    <div class="kpi-card"><div class="label">NRU tuần</div><div class="value">${num(totNru)}</div><div class="sub">tài khoản mới</div></div>`;
+
+  const tbody = document.getElementById('weekBody');
+  tbody.innerHTML = '';
+  branchRows.forEach(b => {
+    const pctM = parseFloat(String(b.pctKpiM).replace('%','').replace(',','.')) || 0;
+    const color = bColor(b.name);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="branch-pill"><span class="branch-dot" style="background:${color}"></span>${b.name}</span></td>
+      <td><strong>${fmt(b.weekRev)}</strong></td>
+      <td>${fmt(b.fnet)}</td><td>${fmt(b.fnb)}</td><td>${fmt(b.mart)}</td>
+      <td>${num(b.traffic)}</td><td>${num(b.nru)}</td>
+      <td>${pctBadge(pctM,b.pctKpiM)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── MONTHLY parse ─────────────────────────────────────────
+function renderMonthly(rows) {
+  const tbody = document.getElementById('monthBody');
+  tbody.innerHTML = '';
+  let found = 0;
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row[0] || !row[1]) continue;
+    const month = parseInt(row[0]) || 0;
+    if (month < 1 || month > 12) continue;
+    const achieved = toN(row[3]);
+    if (achieved === 0) continue;
+    found++;
+    const pct = parseFloat(String(row[10]).replace('%','').replace(',','.')) || 0;
+    const color = bColor(row[1]);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>T${month}</td>
+      <td><span class="branch-pill"><span class="branch-dot" style="background:${color}"></span>${row[1]}</span></td>
+      <td>${fmt(achieved)}</td><td>${fmt(toN(row[7]))}</td>
+      <td>${pctBadge(pct,row[10])}</td>
+      <td>${fmt(toN(row[4]))}</td><td>${fmt(toN(row[5]))}</td><td>${fmt(toN(row[6]))}</td>
+      <td>${fmt(toN(row[14]))}</td>`;
+    tbody.appendChild(tr);
+  }
+  if (!found) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Không có dữ liệu tháng</td></tr>';
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+function renderCharts() {
+  Object.values(_charts).forEach(c => c && c.destroy && c.destroy());
+  _charts = {};
+  if (!_state.daily) return;
+
+  const daily = _state.daily;
+  const branchRows = [];
+  for (let r = 6; r <= 11; r++) {
+    const row = daily[r];
+    if (!row || !row[0]) continue;
+    branchRows.push({ name:row[0], dtToday:toN(row[1]), dtFnet:toN(row[10]), dtFnb:toN(row[11]), dtMart:toN(row[12]), nru:toN(row[9]), deposits:toN(row[6]), pctKpiM:row[15]||'' });
+  }
+
+  // Trend chart from raw data
+  const raw = _state.raw || [];
+  const dates = [...new Set(raw.slice(1).map(r=>r[1]).filter(Boolean))].sort().slice(-20);
+  const branchNames = [...new Set(branchRows.map(b=>b.name))];
+  const trendDS = branchNames.map(name => ({
+    label: name,
+    data: dates.map(dt => {
+      const found = raw.slice(1).filter(r=>r[3]===name && r[1]===dt);
+      return found.reduce((s,r)=>s+toN(r[14]),0);
+    }),
+    borderColor: bColor(name), backgroundColor:'transparent',
+    borderWidth:2, pointRadius:2, tension:.35
+  })).filter(ds=>ds.data.some(v=>v>0));
+
+  if (trendDS.length) {
+    _charts.trend = new Chart(document.getElementById('cTrend'), {
+      type:'line',
+      data:{ labels: dates.map(d=>String(d).slice(0,5)), datasets: trendDS },
+      options: chartOpts()
+    });
+  }
+
+  // Mix donut
+  const totFnet = branchRows.reduce((s,b)=>s+b.dtFnet,0);
+  const totFnb  = branchRows.reduce((s,b)=>s+b.dtFnb,0);
+  const totMart = branchRows.reduce((s,b)=>s+b.dtMart,0);
+  _charts.mix = new Chart(document.getElementById('cMix'), {
+    type:'doughnut',
+    data:{ labels:['Fnet','FnB','Mart'], datasets:[{ data:[totFnet,totFnb,totMart], backgroundColor:['#FF0032','#F5A623','#4A90E2'], borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'bottom', labels:{color:'#8888AA',font:{size:11},padding:14} }, tooltip:{ callbacks:{ label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)}` } } } }
+  });
+
+  // KPI bar
+  const pcts = branchRows.map(b=>parseFloat(String(b.pctKpiM).replace('%','').replace(',','.')) || 0);
+  _charts.kpi = new Chart(document.getElementById('cKpi'), {
+    type:'bar',
+    data:{ labels:branchRows.map(b=>b.name), datasets:[{ label:'% KPI tháng', data:pcts, backgroundColor:branchRows.map(b=>bColor(b.name)), borderRadius:4 }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}%`}} },
+      scales:{ x:{min:0,max:100,ticks:{color:'#666',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,.06)'}}, y:{ticks:{color:'#8888AA',font:{size:11}},grid:{display:false}} } }
+  });
+
+  // NRU bar
+  _charts.nru = new Chart(document.getElementById('cNru'), {
+    type:'bar',
+    data:{ labels:branchRows.map(b=>b.name), datasets:[
+      { label:'NRU mới', data:branchRows.map(b=>b.nru), backgroundColor:branchRows.map(b=>bColor(b.name)+'BB'), borderRadius:4 },
+      { label:'Lượt nạp', data:branchRows.map(b=>b.deposits), backgroundColor:'rgba(255,255,255,.12)', borderRadius:4 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{labels:{color:'#8888AA',font:{size:11}}} },
+      scales:{ x:{ticks:{color:'#666',font:{size:10}},grid:{display:false}}, y:{ticks:{color:'#666',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}} } }
+  });
+}
+
+function chartOpts() {
+  return {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{labels:{color:'#8888AA',font:{size:11}}}, tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}} },
+    scales:{ x:{ticks:{color:'#666',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#666',font:{size:10},callback:v=>shortFmt(v)},grid:{color:'rgba(255,255,255,.06)'}} }
+  };
+}
+
+// ── UI helpers ─────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['daily','weekly','monthly','charts','setup'][i]===id);
+  });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = document.getElementById('page-'+id);
+  if (pg) pg.classList.add('active');
+  if (id==='charts' && (_state.daily||_state.raw)) renderCharts();
+  if (id==='setup') fillConfigForm();
+  hide('loading');
+}
+function show(id){document.getElementById(id).style.display='flex'}
+function hide(id){document.getElementById(id).style.display='none'}
+
+// ── Formatters ─────────────────────────────────────────────
+function toN(v) {
+  if (v===null||v===undefined||v==='') return 0;
+  const s=String(v).replace(/[^0-9,.\-]/g,'').replace(',','.');
+  const n=parseFloat(s); return isNaN(n)?0:n;
+}
+function fmt(n) {
+  if (!n) return '—';
+  if (n>=1e9) return (n/1e9).toFixed(2)+' tỷ';
+  if (n>=1e6) return (n/1e6).toFixed(1)+' tr';
+  return Math.round(n).toLocaleString('vi-VN');
+}
+function num(n) { return n?Math.round(n).toLocaleString('vi-VN'):'—'; }
+function shortFmt(v) {
+  if (v>=1e9) return (v/1e9).toFixed(1)+'B';
+  if (v>=1e6) return (v/1e6).toFixed(0)+'M';
+  return v;
+}
+function pctBadge(n, raw) {
+  const cls = n>=90?'pct-high':n>=70?'pct-mid':'pct-low';
+  return `<span class="pct-cell ${cls}">${raw||'—'}</span>`;
+}
+function safeGet(rows,r,c) { try{return rows[r][c]||'';}catch(e){return '';} }
+
+// ── Init ───────────────────────────────────────────────────
+const cfg = loadConfig();
+if (cfg.sheetId && cfg.gidDaily) {
+  fetchAll();
+} else {
+  hide('loading');
+  switchTab('setup');
+}
+</script>
+</body>
+</html>

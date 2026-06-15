@@ -1,0 +1,932 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OEG Cyber Hub — M6 P&L</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--bg4:#21262d;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e6edf3;--muted:#8b949e;--dim:#484f58;
+  --red:#F85149;--red-bg:rgba(248,81,73,0.12);
+  --green:#3fb950;--green-bg:rgba(63,185,80,0.12);
+  --amber:#d29922;--amber-bg:rgba(210,153,34,0.12);
+  --blue:#388bfd;--blue-bg:rgba(56,139,253,0.12);
+  --purple:#bc8cff;--purple-bg:rgba(188,140,255,0.12);
+  --teal:#39c5b0;--teal-bg:rgba(57,197,176,0.12);
+  --accent:#e8324a;
+  --pl-c:#3fb950;
+  --font:'Be Vietnam Pro',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--r2:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s;}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.logo-text{font-size:13px;font-weight:600;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.nav{padding:12px 8px;flex:1;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);padding:0 8px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--green-bg);color:var(--green);}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.nav-item.active .dot{background:var(--green);}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;}
+.user-role{font-size:10px;color:var(--muted);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;min-width:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:18px;height:1.5px;background:var(--muted);border-radius:2px;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb span{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-down{background:var(--red-bg);color:var(--red);}
+.badge-warn{background:var(--amber-bg);color:var(--amber);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);}
+.badge-green{background:var(--green-bg);color:var(--green);}
+
+.content{padding:24px;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.pl-badge{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,0.3);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.page-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* CONTROLS ROW */
+.controls-row{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.tab-row{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:3px;}
+.tab{padding:6px 14px;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+.tab.active{background:var(--bg4);color:var(--text);}
+.select-control{padding:7px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font);font-size:13px;cursor:pointer;outline:none;}
+.select-control option{background:var(--bg3);}
+
+/* KPI SUMMARY STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.amber::before{background:var(--amber);}
+.kpi-card.blue::before{background:var(--blue);}
+.kpi-card.purple::before{background:var(--purple);}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.kpi-value{font-size:19px;font-weight:700;font-family:var(--mono);line-height:1;}
+.kpi-value.sm{font-size:15px;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:4px;}
+.kpi-progress{margin-top:10px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.kpi-bar{height:100%;border-radius:2px;}
+.kpi-bar.green{background:var(--green);}
+.kpi-bar.red{background:var(--red);}
+.kpi-bar.amber{background:var(--amber);}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-meta{font-size:11px;color:var(--muted);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.span2{grid-column:span 2;}
+
+/* P&L STATEMENT TABLE */
+.pl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pl-table td{padding:0;}
+.pl-row{display:grid;grid-template-columns:1fr repeat(var(--cols,2),130px);border-top:1px solid var(--border);}
+.pl-row.header{border-top:none;padding-bottom:6px;}
+.pl-row.section-head{background:var(--bg3);border-radius:4px;margin:6px 0 2px;}
+.pl-row.subtotal{border-top:1px solid var(--border2);}
+.pl-row.total{border-top:2px solid var(--border2);background:rgba(63,185,80,0.06);border-radius:4px;}
+.pl-row.total-neg{border-top:2px solid var(--border2);background:rgba(248,81,73,0.06);border-radius:4px;}
+.pl-cell{padding:9px 10px;font-size:12px;}
+.pl-cell:not(:first-child){text-align:right;font-family:var(--mono);}
+.pl-cell.label{font-weight:500;}
+.pl-cell.indent{padding-left:24px;color:var(--muted);}
+.pl-cell.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);}
+.pl-cell.subtotal-val{font-weight:600;}
+.pl-cell.total-val{font-size:14px;font-weight:700;}
+.pl-cell.pos{color:var(--green);}
+.pl-cell.neg{color:var(--red);}
+.pl-cell.warn{color:var(--amber);}
+.pl-cell.header-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;}
+.pl-vs{font-size:10px;margin-left:4px;}
+.pl-vs.up{color:var(--green);}
+.pl-vs.dn{color:var(--red);}
+
+/* WATERFALL */
+.waterfall-wrap{height:220px;position:relative;}
+.chart-svg{width:100%;overflow:visible;}
+
+/* BRANCH TABLE */
+.b-table{width:100%;border-collapse:collapse;font-size:12px;}
+.b-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.b-table th:not(:first-child){text-align:right;}
+.b-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.b-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.b-table tr:hover td{background:rgba(255,255,255,0.02);}
+.b-name{font-weight:500;display:flex;align-items:center;gap:8px;}
+.s-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ebitda-bar{display:flex;align-items:center;gap:6px;}
+.e-bar-bg{width:60px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;flex-shrink:0;}
+.e-bar-fill{height:100%;border-radius:3px;}
+
+/* COST PIE LEGEND */
+.cost-legend{display:flex;flex-direction:column;gap:8px;}
+.cl-row{display:flex;align-items:center;gap:10px;}
+.cl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cl-label{font-size:12px;flex:1;}
+.cl-val{font-size:12px;font-family:var(--mono);color:var(--muted);}
+.cl-pct{font-size:11px;color:var(--dim);width:32px;text-align:right;}
+
+/* ALERT */
+.alert-panel{display:flex;flex-direction:column;gap:8px;}
+.alert-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r2);border-left:3px solid;background:var(--bg3);}
+.alert-card.danger{border-color:var(--red);}
+.alert-card.warn{border-color:var(--amber);}
+.alert-card.ok{border-color:var(--green);}
+.alert-card.info{border-color:var(--blue);}
+.alert-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.alert-title{font-size:12px;font-weight:600;}
+.alert-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.alert-time{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* TREND CHART */
+.trend-wrap{height:160px;}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+@media(max-width:900px){
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .page-header{flex-direction:column;}
+  .topbar,.content{padding-left:16px;padding-right:16px;}
+  .pl-row{grid-template-columns:1fr 110px 110px;}
+  .pl-cell{padding:8px 6px;font-size:11px;}
+}
+</style>
+  <script src="oeg-api.js"></script>
+  <link rel="stylesheet" href="oeg-design-system.css"/>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">OCH</div>
+      <div><div class="logo-text">OEG Cyber Hub</div><div class="logo-sub">Chain Dashboard</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Báo cáo</div>
+      <a href="OEG_M1_Dashboard.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M1 — Tổng quan</a>
+      <a href="OEG_M2_Fnet.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M2 — Fnet</a>
+      <a href="OEG_M3_FnB_Mart.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M3 — FnB &amp; Mart</a>
+      <a href="OEG_M4_NhanSu.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M4 — Nhân sự</a>
+      <a href="OEG_M5_PhongMay.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M5 — Phòng máy</a>
+      <a href="OEG_M6_PL.html" class="nav-item active" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M6 — P&amp;L</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Hệ thống</div>
+      <div class="nav-item"><span class="dot"></span>Nhập liệu ngày</div>
+      <div class="nav-item"><span class="dot"></span>Wiki / SOP</div>
+      <div class="nav-item"><span class="dot"></span>Cài đặt KPI</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">AN</div>
+      <div><div class="user-name">Andrew</div><div class="user-role">Chain Director</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"><span></span><span></span><span></span></div>
+      <div class="breadcrumb">Dashboard / <span>M6 — P&amp;L</span></div>
+    </div>
+    <div class="topbar-right">
+      <span id="clock" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="render()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">P&amp;L Chuỗi <span class="pl-badge">EBITDA</span></div>
+        <div class="page-meta" id="dateLabel"></div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls-row">
+      <div class="tab-row">
+        <div class="tab active" onclick="setPeriod('week',this)">Tuần</div>
+        <div class="tab" onclick="setPeriod('month',this)">Tháng</div>
+        <div class="tab" onclick="setPeriod('quarter',this)">Quý</div>
+      </div>
+      <select class="select-control" id="viewSelect" onchange="render()">
+        <option value="chain">Toàn chuỗi</option>
+        <option value="Stadium">Stadium</option>
+        <option value="Tây Sơn">Tây Sơn</option>
+        <option value="LL Quân">LL Quân</option>
+        <option value="Trần Vỹ">Trần Vỹ</option>
+        <option value="TQ Hoàn">TQ Hoàn</option>
+        <option value="Chiến Thắng">Chiến Thắng</option>
+      </select>
+      <select class="select-control" id="compareSelect" onchange="render()">
+        <option value="budget">So với kế hoạch</option>
+        <option value="prev">So với kỳ trước</option>
+      </select>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip" id="kpiStrip"></div>
+
+    <!-- P&L STATEMENT + WATERFALL -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card span2">
+        <div class="card-header">
+          <div>
+            <div class="card-title" id="plTitle">Báo cáo P&amp;L — Toàn chuỗi</div>
+            <div class="card-meta" id="plMeta"></div>
+          </div>
+          <span class="badge badge-green" id="ebitdaBadge"></span>
+        </div>
+        <div id="plStatement"></div>
+      </div>
+    </div>
+
+    <!-- WATERFALL + COST PIE -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Cầu EBITDA</div>
+          <span class="badge badge-blue" id="waterfallPeriod"></span>
+        </div>
+        <div class="waterfall-wrap">
+          <svg id="waterfallChart" class="chart-svg" viewBox="0 0 320 210" preserveAspectRatio="none" style="height:220px"></svg>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Cơ cấu chi phí</div>
+          <span class="badge badge-blue" id="costPiePeriod"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <svg id="costPie" viewBox="0 0 130 130" width="130" height="130" style="flex-shrink:0"></svg>
+          <div class="cost-legend" id="costLegend" style="flex:1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EBITDA TREND + BRANCH TABLE -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="trendTitle">EBITDA trend — 8 tuần</div>
+          <span class="badge badge-green" id="trendBadge"></span>
+        </div>
+        <div class="trend-wrap">
+          <svg id="trendChart" class="chart-svg" viewBox="0 0 320 150" preserveAspectRatio="none" style="height:160px"></svg>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">EBITDA theo cơ sở</div>
+          <span class="badge" id="branchEbitdaBadge"></span>
+        </div>
+        <table class="b-table" id="branchTable">
+          <thead><tr>
+            <th>Cơ sở</th><th>Doanh thu</th><th>CP biến đổi</th><th>CP cố định</th><th>EBITDA</th><th>Margin</th>
+          </tr></thead>
+          <tbody id="branchBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHANNEL BREAKDOWN + ALERTS -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Doanh thu chi tiết theo kênh</div>
+          <span class="badge badge-blue" id="channelPeriod"></span>
+        </div>
+        <div id="channelBreakdown"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Phân tích &amp; Cảnh báo P&amp;L</div>
+          <span class="badge" id="alertBadge"></span>
+        </div>
+        <div class="alert-panel" id="alertPanel"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────
+const BRANCHES = ['Stadium','Tây Sơn','LL Quân','Trần Vỹ','TQ Hoàn','Chiến Thắng'];
+
+// Monthly revenue KPI per branch
+const REV_KPI = {
+  'Stadium':320000000,'Tây Sơn':280000000,'LL Quân':260000000,
+  'Trần Vỹ':250000000,'TQ Hoàn':240000000,'Chiến Thắng':230000000
+};
+
+// Fixed costs per branch per month (VND)
+const FIXED_COST = {
+  'Stadium':    {rent:35000000,depreciation:12000000},
+  'Tây Sơn':   {rent:28000000,depreciation:10000000},
+  'LL Quân':   {rent:25000000,depreciation:9000000},
+  'Trần Vỹ':  {rent:24000000,depreciation:8500000},
+  'TQ Hoàn':  {rent:22000000,depreciation:8000000},
+  'Chiến Thắng':{rent:20000000,depreciation:7500000},
+};
+
+// Variable cost ratios (of revenue)
+const VAR_RATIO = {
+  salary:     0.22,   // Lương & BHXH
+  cogs:       0.18,   // Giá vốn hàng bán (FnB+Mart)
+  electricity:0.07,   // Điện nước
+  operations: 0.04,   // Vật tư, sửa chữa
+};
+
+// Channel split
+const CH_SPLIT = {fnet:0.674, fnb:0.207, mart:0.119};
+
+// Cost colors
+const COST_COLORS = {
+  'Lương & BHXH':'#bc8cff',
+  'Giá vốn hàng (COGS)':'#388bfd',
+  'Điện nước':'#d29922',
+  'Khấu hao máy':'#8b949e',
+  'Thuê mặt bằng':'#f0883e',
+  'Vận hành khác':'#39c5b0',
+};
+
+// ─── STATE ───────────────────────────────────────────────────
+let period = 'week';   // week | month | quarter
+let view   = 'chain';  // chain | branch name
+let compare= 'budget'; // budget | prev
+
+// ─── SEED RNG ────────────────────────────────────────────────
+let _s=33; function sr(){_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff;}
+function seed(n){_s=n;}
+
+// ─── DATA ────────────────────────────────────────────────────
+function genBranchPL(branch, periodMult, seedN) {
+  seed(seedN);
+  const monthlyRev = REV_KPI[branch];
+  const rev = Math.round(monthlyRev * periodMult * (0.82 + sr()*0.36));
+  const fc  = FIXED_COST[branch];
+
+  // Revenue by channel
+  const fnet = Math.round(rev * CH_SPLIT.fnet * (0.95+sr()*0.1));
+  const fnb  = Math.round(rev * CH_SPLIT.fnb  * (0.92+sr()*0.12));
+  const mart = rev - fnet - fnb;
+
+  // Variable costs
+  const salary     = Math.round(rev * VAR_RATIO.salary     * (0.95+sr()*0.1));
+  const cogs       = Math.round(rev * VAR_RATIO.cogs       * (0.92+sr()*0.12));
+  const electricity= Math.round(rev * VAR_RATIO.electricity* (0.90+sr()*0.15));
+  const operations = Math.round(rev * VAR_RATIO.operations * (0.85+sr()*0.2));
+
+  // Fixed costs (scaled by period)
+  const rent       = Math.round(fc.rent        * periodMult);
+  const depreciation= Math.round(fc.depreciation* periodMult);
+
+  const totalVar  = salary + cogs + electricity + operations;
+  const totalFixed= rent + depreciation;
+  const totalCost = totalVar + totalFixed;
+  const ebitda    = rev - totalCost;
+  const ebitdaMargin = Math.round(ebitda/rev*100);
+
+  return {rev, fnet, fnb, mart, salary, cogs, electricity, operations,
+          rent, depreciation, totalVar, totalFixed, totalCost, ebitda, ebitdaMargin};
+}
+
+function periodMult() {
+  return period==='week'?0.25:period==='month'?1:3;
+}
+
+function getBranchData(branch, pMult, variation=0) {
+  const idx = BRANCHES.indexOf(branch);
+  return genBranchPL(branch, pMult, 500+idx*31+variation);
+}
+
+function getChainData(pMult, variation=0) {
+  const all = BRANCHES.map(b => getBranchData(b, pMult, variation));
+  return all.reduce((acc, d) => {
+    Object.keys(d).forEach(k => { acc[k] = (acc[k]||0) + d[k]; });
+    return acc;
+  }, {});
+}
+
+function getCurrentData() {
+  const pm = periodMult();
+  if(view==='chain') return getChainData(pm, 0);
+  return getBranchData(view, pm, 0);
+}
+
+function getCompareData() {
+  const pm = periodMult();
+  const variation = compare==='prev' ? 50 : 99; // prev period or budget
+  if(view==='chain') return getChainData(pm, variation);
+  return getBranchData(view, pm, variation);
+}
+
+function getTrendData(n=8) {
+  return Array.from({length:n},(_,i)=>{
+    seed(700+i*13);
+    const pm=periodMult();
+    const d = view==='chain' ? getChainData(pm,i*7) : getBranchData(view,pm,i*7);
+    return {label:`T${i+1}`,ebitda:d.ebitda,rev:d.rev};
+  });
+}
+
+// ─── UTILS ───────────────────────────────────────────────────
+function fmt(n){return Math.round(Math.abs(n)).toLocaleString('vi-VN');}
+function fmtM(n){return (n/1e6).toFixed(1)+'M';}
+function fmtMsigned(n){return (n>=0?'+':'-')+(Math.abs(n)/1e6).toFixed(1)+'M';}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function delta(curr,comp){return curr-comp;}
+function deltaStr(curr,comp){const d=curr-comp;return (d>=0?'▲':'▼')+' '+fmtM(Math.abs(d));}
+function deltaClass(curr,comp,invert=false){
+  const positive=curr>=comp;
+  return (positive!==invert)?'up':'dn';
+}
+function today(){const d=new Date();return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
+function periodLabel(){return period==='week'?'Tuần này':period==='month'?'Tháng này':'Quý này';}
+function compareLabel(){return compare==='budget'?'Kế hoạch':'Kỳ trước';}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function render(){
+  view   = document.getElementById('viewSelect').value;
+  compare= document.getElementById('compareSelect').value;
+
+  const curr = getCurrentData();
+  const comp = getCompareData();
+  const viewLabel = view==='chain'?'Toàn chuỗi':view;
+
+  document.getElementById('dateLabel').textContent=
+    `${viewLabel} — ${periodLabel()} · Cập nhật: ${today()}`;
+  document.getElementById('plTitle').textContent=
+    `Báo cáo P&L — ${viewLabel}`;
+  document.getElementById('plMeta').textContent=
+    `So với ${compareLabel()}`;
+
+  const ebitdaPct=pct(curr.ebitda,curr.rev);
+  document.getElementById('ebitdaBadge').textContent=`EBITDA ${ebitdaPct}% margin`;
+  document.getElementById('ebitdaBadge').className=`badge badge-${ebitdaPct>=20?'green':ebitdaPct>=10?'warn':'down'}`;
+
+  renderKPIStrip(curr, comp);
+  renderPLStatement(curr, comp);
+  renderWaterfall(curr);
+  renderCostPie(curr);
+  renderTrend();
+  renderBranchTable();
+  renderChannelBreakdown(curr);
+  renderAlerts(curr, comp);
+}
+
+// ─── KPI STRIP ───────────────────────────────────────────────
+function renderKPIStrip(curr, comp) {
+  const ebitdaMargin = pct(curr.ebitda, curr.rev);
+  const grossProfit  = curr.rev - curr.totalVar;
+  const grossMargin  = pct(grossProfit, curr.rev);
+  const costRatio    = pct(curr.totalCost, curr.rev);
+  const revDelta     = deltaClass(curr.rev, comp.rev);
+  const ebitdaDelta  = deltaClass(curr.ebitda, comp.ebitda);
+
+  const cards = [
+    {label:'Doanh thu',val:fmtM(curr.rev),sub:`${compare==='budget'?'KH':'Kỳ trước'}: ${fmtM(comp.rev)}`,
+     badge:{txt:deltaStr(curr.rev,comp.rev),cls:revDelta},color:'blue'},
+    {label:'Gross Profit',val:fmtM(grossProfit),sub:`Margin ${grossMargin}%`,
+     pct:grossMargin,color:grossMargin>=45?'green':grossMargin>=35?'amber':'red'},
+    {label:'Tổng chi phí',val:fmtM(curr.totalCost),sub:`${costRatio}% doanh thu`,
+     pct:100-costRatio,color:costRatio<=75?'green':costRatio<=85?'amber':'red'},
+    {label:'EBITDA',val:fmtM(curr.ebitda),sub:`Margin ${ebitdaMargin}%`,
+     badge:{txt:deltaStr(curr.ebitda,comp.ebitda),cls:ebitdaDelta},
+     color:ebitdaMargin>=20?'green':ebitdaMargin>=10?'amber':'red'},
+    {label:'Biến đổi / DT',val:pct(curr.totalVar,curr.rev)+'%',sub:'Tỷ trọng CP biến đổi',
+     pct:100-pct(curr.totalVar,curr.rev),color:'purple'},
+    {label:'Cố định / DT',val:pct(curr.totalFixed,curr.rev)+'%',sub:'Tỷ trọng CP cố định',
+     pct:100-pct(curr.totalFixed,curr.rev),color:'amber'},
+  ];
+  document.getElementById('kpiStrip').innerHTML=cards.map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value${c.val.length>8?' sm':''}">${c.val}</div>
+      <div class="kpi-sub">
+        ${c.badge?`<span style="font-size:10px;font-weight:600;color:${c.badge.cls==='up'?'var(--green)':'var(--red)'}">${c.badge.txt}</span> `:''}
+        ${c.sub}
+      </div>
+      ${c.pct!==undefined?`<div class="kpi-progress"><div class="kpi-bar ${c.color}" style="width:${Math.min(c.pct,100)}%"></div></div>`:''}
+    </div>`).join('');
+}
+
+// ─── P&L STATEMENT ───────────────────────────────────────────
+function renderPLStatement(curr, comp) {
+  const cmpLabel = compareLabel();
+  const cols = 2; // curr + compare
+
+  function row(label, currVal, compVal, cls='', indent=false, isTotal=false, rowCls='') {
+    const d = delta(currVal, compVal);
+    const dCls = cls==='neg' ? deltaClass(currVal,compVal,true) : deltaClass(currVal,compVal);
+    const dStr = d===0?'—':fmtMsigned(d);
+    const valCls = isTotal ? 'total-val '+cls : 'subtotal-val '+cls;
+    return `<div class="pl-row ${rowCls}" style="--cols:${cols}">
+      <div class="pl-cell ${indent?'indent':'label'}">${label}</div>
+      <div class="pl-cell ${valCls}">${fmtM(currVal)}</div>
+      <div class="pl-cell" style="color:${dCls==='up'?'var(--green)':'var(--red)'};font-size:11px;text-align:right;font-family:var(--mono)">${dStr}</div>
+    </div>`;
+  }
+
+  function sectionHead(label) {
+    return `<div class="pl-row section-head" style="--cols:${cols}">
+      <div class="pl-cell section-label">${label}</div>
+      <div class="pl-cell header-label" style="text-align:right">Thực tế</div>
+      <div class="pl-cell header-label" style="text-align:right">vs ${cmpLabel}</div>
+    </div>`;
+  }
+
+  const grossProfit  = curr.rev - curr.cogs;
+  const compGross    = comp.rev - comp.cogs;
+
+  document.getElementById('plStatement').innerHTML = `
+    <div style="--cols:${cols}">
+      ${sectionHead('A. Doanh thu')}
+      ${row('Tổng doanh thu', curr.rev, comp.rev,'pos',false,false,'subtotal')}
+      ${row('Fnet', curr.fnet, comp.fnet,'pos',true)}
+      ${row('FnB', curr.fnb, comp.fnb,'pos',true)}
+      ${row('Mart', curr.mart, comp.mart,'pos',true)}
+
+      ${sectionHead('B. Chi phí biến đổi')}
+      ${row('Lương & BHXH', curr.salary, comp.salary,'neg',true)}
+      ${row('Giá vốn hàng (COGS)', curr.cogs, comp.cogs,'neg',true)}
+      ${row('Điện nước', curr.electricity, comp.electricity,'neg',true)}
+      ${row('Vận hành khác', curr.operations, comp.operations,'neg',true)}
+      ${row('Tổng CP biến đổi', curr.totalVar, comp.totalVar,'neg',false,false,'subtotal')}
+
+      ${sectionHead('C. Chi phí cố định')}
+      ${row('Thuê mặt bằng', curr.rent, comp.rent,'neg',true)}
+      ${row('Khấu hao máy', curr.depreciation, comp.depreciation,'neg',true)}
+      ${row('Tổng CP cố định', curr.totalFixed, comp.totalFixed,'neg',false,false,'subtotal')}
+
+      <div style="height:8px"></div>
+      ${row('EBITDA = A − B − C', curr.ebitda, comp.ebitda,
+            curr.ebitda>=0?'pos':'neg', false, true,
+            curr.ebitda>=0?'total':'total-neg')}
+      <div class="pl-row" style="--cols:${cols};border-top:none;padding-bottom:4px">
+        <div class="pl-cell" style="color:var(--muted);font-size:11px">EBITDA Margin</div>
+        <div class="pl-cell" style="text-align:right;font-size:12px;font-family:var(--mono);color:${curr.ebitda>=0?'var(--green)':'var(--red)'}">
+          ${pct(curr.ebitda,curr.rev)}%
+        </div>
+        <div class="pl-cell" style="text-align:right;font-size:11px;color:var(--muted)">
+          ${compareLabel()}: ${pct(comp.ebitda,comp.rev)}%
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── WATERFALL ────────────────────────────────────────────────
+function renderWaterfall(curr) {
+  document.getElementById('waterfallPeriod').textContent = periodLabel();
+  const svg = document.getElementById('waterfallChart');
+  const W=320,H=210,pb=30,pt=16,pl=10,pr=10;
+  const iH=H-pb-pt;
+
+  const items = [
+    {label:'Doanh thu', val:curr.rev,      type:'pos'},
+    {label:'Lương',     val:-curr.salary,   type:'neg'},
+    {label:'COGS',      val:-curr.cogs,     type:'neg'},
+    {label:'Điện nước', val:-curr.electricity,type:'neg'},
+    {label:'Vận hành',  val:-curr.operations,type:'neg'},
+    {label:'Thuê MB',   val:-curr.rent,     type:'neg'},
+    {label:'Khấu hao',  val:-curr.depreciation,type:'neg'},
+    {label:'EBITDA',    val:curr.ebitda,    type:'total'},
+  ];
+
+  const maxVal = curr.rev * 1.05;
+  const bw = Math.floor((W-pl-pr) / items.length) - 6;
+  let running = 0;
+  const bars = items.map((item,i)=>{
+    const x = pl + i*((W-pl-pr)/items.length) + 3;
+    let barStart, barH, col;
+    if(item.type==='pos'){
+      barStart = running;
+      barH = item.val;
+      col = 'var(--green)';
+    } else if(item.type==='neg'){
+      barStart = running + item.val;
+      barH = -item.val;
+      col = 'var(--red)';
+    } else {
+      barStart = 0;
+      barH = item.val;
+      col = item.val>=0?'var(--green)':'var(--red)';
+    }
+    const y1 = pt + iH - ((barStart+barH)/maxVal)*iH;
+    const y2 = pt + iH - (barStart/maxVal)*iH;
+    const rectH = Math.max(y2-y1,2);
+    if(item.type!=='total') running += item.val;
+
+    // connector line to next
+    const nextX = pl + (i+1)*((W-pl-pr)/items.length) + 3;
+    const conn = i<items.length-1 && item.type!=='total'
+      ? `<line x1="${x+bw}" y1="${pt+iH-((running)/maxVal)*iH}" x2="${nextX}" y2="${pt+iH-((running)/maxVal)*iH}" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="2 2"/>`
+      : '';
+
+    const valY = y1 > 20 ? y1-4 : y1+12;
+    return `<rect x="${x}" y="${y1}" width="${bw}" height="${rectH}" fill="${col}" rx="3" opacity="0.85"/>
+      <text x="${x+bw/2}" y="${H-8}" text-anchor="middle" fill="#484f58" font-size="8.5" font-family="Be Vietnam Pro">${item.label}</text>
+      <text x="${x+bw/2}" y="${valY}" text-anchor="middle" fill="${col}" font-size="8" font-family="JetBrains Mono">${fmtM(Math.abs(item.val))}</text>
+      ${conn}`;
+  }).join('');
+
+  // grid lines
+  const grids = [0,0.25,0.5,0.75,1].map(f=>{
+    const y=pt+iH*(1-f);
+    return `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <text x="${pl}" y="${y-3}" fill="#484f58" font-size="8" font-family="JetBrains Mono">${fmtM(maxVal*f)}</text>`;
+  }).join('');
+
+  svg.innerHTML = grids + bars;
+}
+
+// ─── COST PIE ─────────────────────────────────────────────────
+function renderCostPie(curr) {
+  document.getElementById('costPiePeriod').textContent = periodLabel();
+  const costs = [
+    {label:'Lương & BHXH',          val:curr.salary},
+    {label:'Giá vốn hàng (COGS)',   val:curr.cogs},
+    {label:'Điện nước',             val:curr.electricity},
+    {label:'Khấu hao máy',          val:curr.depreciation},
+    {label:'Thuê mặt bằng',         val:curr.rent},
+    {label:'Vận hành khác',         val:curr.operations},
+  ];
+  const total = costs.reduce((a,c)=>a+c.val,0);
+  const cx=65,cy=65,r=55,ri=30;
+  let angle=-Math.PI/2;
+  const paths = costs.map(c=>{
+    const a=(c.val/total)*2*Math.PI;
+    const ea=angle+a;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(ea),y2=cy+r*Math.sin(ea);
+    const ix1=cx+ri*Math.cos(angle),iy1=cy+ri*Math.sin(angle);
+    const ix2=cx+ri*Math.cos(ea),iy2=cy+ri*Math.sin(ea);
+    const large=a>Math.PI?1:0;
+    const col=COST_COLORS[c.label]||'#888';
+    const path=`<path d="M ${ix1} ${iy1} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ri} ${ri} 0 ${large} 0 ${ix1} ${iy1} Z" fill="${col}" opacity="0.85"/>`;
+    angle=ea;
+    return path;
+  }).join('');
+
+  document.getElementById('costPie').innerHTML=
+    paths
+    +`<circle cx="${cx}" cy="${cy}" r="${ri-2}" fill="var(--bg2)"/>`
+    +`<text x="${cx}" y="${cy-6}" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700" font-family="JetBrains Mono">${fmtM(total)}</text>`
+    +`<text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#8b949e" font-size="9" font-family="Be Vietnam Pro">tổng CP</text>`;
+
+  document.getElementById('costLegend').innerHTML=costs.map(c=>`
+    <div class="cl-row">
+      <div class="cl-dot" style="background:${COST_COLORS[c.label]}"></div>
+      <div class="cl-label">${c.label}</div>
+      <div class="cl-val">${fmtM(c.val)}</div>
+      <div class="cl-pct">${pct(c.val,total)}%</div>
+    </div>`).join('');
+}
+
+// ─── TREND CHART ─────────────────────────────────────────────
+function renderTrend() {
+  const data = getTrendData(8);
+  const svg = document.getElementById('trendChart');
+  const W=320,H=150,pl=10,pr=10,pt=16,pb=24;
+  const iW=W-pl-pr, iH=H-pt-pb;
+  const ebitdaVals = data.map(d=>d.ebitda);
+  const minV=Math.min(...ebitdaVals,0), maxV=Math.max(...ebitdaVals)*1.1;
+  const sy=v=>pt+iH-((v-minV)/(maxV-minV))*iH;
+  const sx=i=>pl+(i/(data.length-1))*iW;
+  const pts=data.map((d,i)=>`${sx(i)},${sy(d.ebitda)}`).join(' ');
+  const areaBot=`${sx(data.length-1)},${sy(0)} ${sx(0)},${sy(0)}`;
+  const zeroY=sy(0);
+  const avgEbitda=Math.round(ebitdaVals.reduce((a,v)=>a+v,0)/ebitdaVals.length);
+  const lastEbitda=ebitdaVals[ebitdaVals.length-1];
+  const trend=lastEbitda>=avgEbitda;
+
+  document.getElementById('trendTitle').textContent=`EBITDA trend — ${data.length} ${period==='week'?'tuần':'kỳ'}`;
+  document.getElementById('trendBadge').textContent=`TB ${fmtM(avgEbitda)}/kỳ`;
+  document.getElementById('trendBadge').className=`badge badge-${trend?'green':'warn'}`;
+
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--green)" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${minV<0?`<line x1="${pl}" y1="${zeroY}" x2="${W-pr}" y2="${zeroY}" stroke="rgba(248,81,73,0.3)" stroke-width="1" stroke-dasharray="4 3"/>`:'' }
+    <line x1="${pl}" y1="${sy(avgEbitda)}" x2="${W-pr}" y2="${sy(avgEbitda)}" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="3 3"/>
+    <polygon points="${pts} ${areaBot}" fill="url(#tg)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${data.map((d,i)=>{
+      const col=d.ebitda>=0?'var(--green)':'var(--red)';
+      return `<circle cx="${sx(i)}" cy="${sy(d.ebitda)}" r="3.5" fill="${col}" stroke="var(--bg2)" stroke-width="1.5"/>
+              <text x="${sx(i)}" y="${H-4}" text-anchor="middle" fill="#484f58" font-size="9" font-family="Be Vietnam Pro">${d.label}</text>`;
+    }).join('')}
+    <text x="${W-pr}" y="${sy(avgEbitda)-4}" text-anchor="end" fill="#484f58" font-size="8" font-family="Be Vietnam Pro">TB</text>`;
+}
+
+// ─── BRANCH TABLE ────────────────────────────────────────────
+function renderBranchTable() {
+  const pm = periodMult();
+  const rows = BRANCHES.map((b,i)=>{
+    const d = getBranchData(b, pm, i*7);
+    return {name:b, ...d};
+  }).sort((a,b)=>b.ebitdaMargin-a.ebitdaMargin);
+
+  const maxEbitda = Math.max(...rows.map(r=>r.ebitda));
+  const profitCount = rows.filter(r=>r.ebitda>0).length;
+  document.getElementById('branchEbitdaBadge').textContent=`${profitCount}/6 có lãi`;
+  document.getElementById('branchEbitdaBadge').className=`badge badge-${profitCount===6?'green':profitCount>=4?'warn':'down'}`;
+
+  document.getElementById('branchBody').innerHTML=rows.map(r=>{
+    const margCol=r.ebitdaMargin>=20?'var(--green)':r.ebitdaMargin>=10?'var(--amber)':'var(--red)';
+    const dotCol=r.ebitda>0?'var(--green)':r.ebitda>-5000000?'var(--amber)':'var(--red)';
+    return `<tr>
+      <td><div class="b-name"><span class="s-dot" style="background:${dotCol}"></span>${r.name}</div></td>
+      <td>${fmtM(r.rev)}</td>
+      <td>${fmtM(r.totalVar)}</td>
+      <td>${fmtM(r.totalFixed)}</td>
+      <td style="color:${r.ebitda>=0?'var(--green)':'var(--red)'};font-weight:600">${fmtM(r.ebitda)}</td>
+      <td>
+        <div class="ebitda-bar">
+          <div class="e-bar-bg"><div class="e-bar-fill" style="width:${Math.max(0,Math.min(r.ebitdaMargin/35*100,100))}%;background:${margCol}"></div></div>
+          <span style="font-size:11px;color:${margCol};font-family:var(--mono)">${r.ebitdaMargin}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── CHANNEL BREAKDOWN ───────────────────────────────────────
+function renderChannelBreakdown(curr) {
+  document.getElementById('channelPeriod').textContent = periodLabel();
+  const channels = [
+    {name:'Fnet',      val:curr.fnet, color:'var(--blue)', icon:'🖥️',
+     margin: pct(curr.fnet - Math.round(curr.totalCost*CH_SPLIT.fnet), curr.fnet)},
+    {name:'FnB',       val:curr.fnb,  color:'var(--orange,#f0883e)', icon:'🍜',
+     margin: pct(curr.fnb  - Math.round(curr.totalCost*CH_SPLIT.fnb),  curr.fnb)},
+    {name:'Mart',      val:curr.mart, color:'var(--teal)', icon:'🛒',
+     margin: pct(curr.mart - Math.round(curr.totalCost*CH_SPLIT.mart), curr.mart)},
+  ];
+  const total = curr.rev;
+
+  document.getElementById('channelBreakdown').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      ${channels.map(ch=>`
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:15px">${ch.icon}</span>
+              <span style="font-size:13px;font-weight:600">${ch.name}</span>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:14px;font-weight:700;font-family:var(--mono)">${fmtM(ch.val)}</div>
+              <div style="font-size:10px;color:var(--muted)">${pct(ch.val,total)}% tổng DT</div>
+            </div>
+          </div>
+          <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:4px">
+            <div style="height:100%;border-radius:4px;background:${ch.color};width:${pct(ch.val,total)}%;transition:width .6s"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+            <span>Đóng góp CP ước tính: ${fmtM(Math.round(curr.totalCost*pct(ch.val,total)/100))}</span>
+            <span style="color:${ch.margin>=15?'var(--green)':ch.margin>=5?'var(--amber)':'var(--red)'};font-weight:600">Margin ~${ch.margin}%</span>
+          </div>
+        </div>`).join('<div style="height:1px;background:var(--border)"></div>')}
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--muted)">Tổng doanh thu</span>
+      <span style="font-size:16px;font-weight:700;font-family:var(--mono);color:var(--green)">${fmtM(total)}</span>
+    </div>`;
+}
+
+// ─── ALERTS ──────────────────────────────────────────────────
+function renderAlerts(curr, comp) {
+  const alerts = [];
+  const ebitdaMargin = pct(curr.ebitda, curr.rev);
+  const costRatio    = pct(curr.totalCost, curr.rev);
+  const salaryRatio  = pct(curr.salary, curr.rev);
+  const ebitdaDelta  = delta(curr.ebitda, comp.ebitda);
+  const revDelta     = delta(curr.rev, comp.rev);
+
+  if(curr.ebitda < 0)
+    alerts.push({type:'danger',icon:'⚠',title:'EBITDA âm — Lỗ kỳ này',
+      desc:`EBITDA: ${fmtM(curr.ebitda)} VNĐ. Tổng chi phí vượt doanh thu ${fmtM(curr.totalCost-curr.rev)}.`,time:'EBITDA'});
+  else if(ebitdaMargin < 10)
+    alerts.push({type:'warn',icon:'○',title:`EBITDA Margin thấp: ${ebitdaMargin}%`,
+      desc:`Ngưỡng mục tiêu ≥20%. Cần tối ưu cơ cấu chi phí.`,time:'EBITDA'});
+  else
+    alerts.push({type:'ok',icon:'✓',title:`EBITDA Margin ${ebitdaMargin}% — Đạt mục tiêu`,
+      desc:`EBITDA: ${fmtM(curr.ebitda)}. Tiếp tục duy trì.`,time:'EBITDA'});
+
+  if(salaryRatio > 25)
+    alerts.push({type:'warn',icon:'↑',title:`Lương chiếm ${salaryRatio}% doanh thu`,
+      desc:`Ngưỡng khuyến nghị ≤22%. Xem xét tối ưu lịch làm và định biên.`,time:'Lương & BHXH'});
+
+  if(ebitdaDelta < 0)
+    alerts.push({type:'warn',icon:'↓',title:`EBITDA giảm ${fmtM(Math.abs(ebitdaDelta))} vs ${compareLabel()}`,
+      desc:`Cần xác định nguyên nhân: doanh thu giảm hay chi phí tăng?`,time:'So sánh'});
+
+  if(revDelta > 0)
+    alerts.push({type:'info',icon:'↑',title:`Doanh thu tăng ${fmtM(revDelta)} vs ${compareLabel()}`,
+      desc:`Tốt. Đảm bảo chi phí không tăng tương ứng để bảo vệ margin.`,time:'Doanh thu'});
+
+  if(costRatio > 85)
+    alerts.push({type:'danger',icon:'!',title:`Tỷ trọng chi phí ${costRatio}% — Cao`,
+      desc:`Chi phí chiếm ${costRatio}% doanh thu. Rà soát từng dòng chi phí biến đổi.`,time:'Chi phí'});
+
+  const wc = alerts.filter(a=>a.type!=='ok'&&a.type!=='info').length;
+  document.getElementById('alertBadge').textContent=`${wc} cảnh báo`;
+  document.getElementById('alertBadge').className=`badge badge-${alerts.some(a=>a.type==='danger')?'down':wc>0?'warn':'up'}`;
+
+  document.getElementById('alertPanel').innerHTML=alerts.map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div>
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+        ${a.time?`<div class="alert-time">${a.time}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ─── INTERACTIONS ────────────────────────────────────────────
+function setPeriod(p,el){
+  period=p;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ─── CLOCK ───────────────────────────────────────────────────
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+},1000);
+
+
+// ─── INIT ───────────────────────────────────────────────────
+render();
+OEG.init(async (user) => {
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  if (nameEl) nameEl.textContent = user.name || user.email;
+  if (roleEl) roleEl.textContent = user.role || 'User';
+});
+
+</script>
+  <script src="oeg-shell.js"></script>
+</body>
+</html>
+

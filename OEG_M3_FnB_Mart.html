@@ -1,0 +1,997 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OEG Cyber Hub — M3 FnB & Mart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<style>
+:root {
+  --bg:#0d1117; --bg2:#161b22; --bg3:#1c2333; --bg4:#21262d;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
+  --text:#e6edf3; --muted:#8b949e; --dim:#484f58;
+  --red:#F85149; --red-bg:rgba(248,81,73,0.12);
+  --green:#3fb950; --green-bg:rgba(63,185,80,0.12);
+  --amber:#d29922; --amber-bg:rgba(210,153,34,0.12);
+  --blue:#388bfd; --blue-bg:rgba(56,139,253,0.12);
+  --purple:#bc8cff; --purple-bg:rgba(188,140,255,0.12);
+  --orange:#f0883e; --orange-bg:rgba(240,136,62,0.12);
+  --teal:#39c5b0; --teal-bg:rgba(57,197,176,0.12);
+  --accent:#e8324a;
+  --fnb-c:#f0883e; --fnb-bg:rgba(240,136,62,0.12);
+  --mart-c:#39c5b0; --mart-bg:rgba(57,197,176,0.12);
+  --font:'Be Vietnam Pro',sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:10px; --r2:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s ease;}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.logo-text{font-size:13px;font-weight:600;line-height:1.3;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.nav{padding:12px 8px;flex:1;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);padding:0 8px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--fnb-bg);color:var(--fnb-c);}
+.nav-item.active.mart{background:var(--mart-bg);color:var(--mart-c);}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.nav-item.active .dot{background:var(--fnb-c);}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;}
+.user-role{font-size:10px;color:var(--muted);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;min-width:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:18px;height:1.5px;background:var(--muted);border-radius:2px;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb span{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-down{background:var(--red-bg);color:var(--red);}
+.badge-warn{background:var(--amber-bg);color:var(--amber);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);}
+.badge-orange{background:var(--orange-bg);color:var(--orange);}
+.badge-teal{background:var(--teal-bg);color:var(--teal);}
+
+.content{padding:24px;}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.page-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* CHANNEL SWITCH — big tabs */
+.channel-switch{display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;}
+.ch-tab{flex:1;padding:12px 20px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);transition:all .2s;border:none;background:transparent;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ch-tab:first-child{border-right:1px solid var(--border);}
+.ch-tab.active-fnb{background:var(--fnb-bg);color:var(--fnb-c);}
+.ch-tab.active-mart{background:var(--mart-bg);color:var(--mart-c);}
+.ch-tab .ch-icon{font-size:16px;}
+.ch-badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;}
+.ch-badge-fnb{background:rgba(240,136,62,0.2);color:var(--fnb-c);}
+.ch-badge-mart{background:rgba(57,197,176,0.2);color:var(--mart-c);}
+
+/* PERIOD TAB */
+.tab-row{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:3px;}
+.tab{padding:6px 14px;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+.tab.active{background:var(--bg4);color:var(--text);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
+.kpi-card:hover{border-color:var(--border2);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-card.fnb::before{background:var(--fnb-c);}
+.kpi-card.mart::before{background:var(--mart-c);}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.amber::before{background:var(--amber);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.blue::before{background:var(--blue);}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.kpi-value{font-size:21px;font-weight:700;font-family:var(--mono);line-height:1;}
+.kpi-value.sm{font-size:16px;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+.kpi-delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.dn{color:var(--red);}
+.kpi-delta.wn{color:var(--amber);}
+.kpi-progress{margin-top:10px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.kpi-bar{height:100%;border-radius:2px;transition:width .6s ease;}
+.kpi-bar.fnb{background:var(--fnb-c);}
+.kpi-bar.mart{background:var(--mart-c);}
+.kpi-bar.green{background:var(--green);}
+.kpi-bar.amber{background:var(--amber);}
+.kpi-bar.red{background:var(--red);}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-meta{font-size:11px;color:var(--muted);}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.span2{grid-column:span 2;}
+
+/* CHART */
+.chart-svg{width:100%;overflow:visible;}
+
+/* BRANCH SELECTOR */
+.branch-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.branch-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--muted);background:transparent;transition:all .15s;white-space:nowrap;}
+.branch-chip:hover{border-color:var(--fnb-c);color:var(--fnb-c);}
+.branch-chip.active-fnb{background:var(--fnb-bg);border-color:var(--fnb-c);color:var(--fnb-c);}
+.branch-chip:hover.mart-mode{border-color:var(--mart-c);color:var(--mart-c);}
+.branch-chip.active-mart{background:var(--mart-bg);border-color:var(--mart-c);color:var(--mart-c);}
+.all-chip.active-fnb{background:rgba(255,255,255,0.05);border-color:var(--border2);color:var(--text);}
+.all-chip.active-mart{background:rgba(255,255,255,0.05);border-color:var(--border2);color:var(--text);}
+
+/* SKU TABLE */
+.sku-table{width:100%;border-collapse:collapse;font-size:12px;}
+.sku-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.sku-table th:not(:first-child){text-align:right;}
+.sku-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.sku-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.sku-table tr:hover td{background:rgba(255,255,255,0.02);}
+.sku-rank{width:20px;height:20px;border-radius:4px;background:var(--bg4);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);}
+.sku-rank.r1{background:rgba(240,184,62,0.15);color:#f0b83e;}
+.sku-rank.r2{background:rgba(139,148,158,0.15);color:var(--muted);}
+.sku-rank.r3{background:rgba(205,127,50,0.12);color:#cd7f32;}
+.sku-bar-cell{display:flex;align-items:center;gap:8px;}
+.sku-mini-bar{height:4px;border-radius:2px;min-width:4px;flex-shrink:0;}
+
+/* STOCK TABLE */
+.stock-table{width:100%;border-collapse:collapse;font-size:12px;}
+.stock-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.stock-table th:not(:first-child){text-align:right;}
+.stock-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.stock-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.stock-table tr:hover td{background:rgba(255,255,255,0.02);}
+.stock-pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:600;}
+.stock-ok{background:var(--green-bg);color:var(--green);}
+.stock-low{background:var(--amber-bg);color:var(--amber);}
+.stock-out{background:var(--red-bg);color:var(--red);}
+.exp-ok{color:var(--muted);}
+.exp-soon{color:var(--amber);font-weight:600;}
+.exp-urgent{color:var(--red);font-weight:700;}
+
+/* BRANCH TABLE */
+.branch-table{width:100%;border-collapse:collapse;font-size:12px;}
+.branch-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.branch-table th:not(:first-child){text-align:right;}
+.branch-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.branch-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.branch-table tr:hover td{background:rgba(255,255,255,0.02);}
+.b-name{font-weight:500;display:flex;align-items:center;gap:8px;}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ALERT */
+.alert-panel{display:flex;flex-direction:column;gap:8px;}
+.alert-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r2);border-left:3px solid;background:var(--bg3);}
+.alert-card.danger{border-color:var(--red);}
+.alert-card.warn{border-color:var(--amber);}
+.alert-card.ok{border-color:var(--green);}
+.alert-card.info{border-color:var(--blue);}
+.alert-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.alert-title{font-size:12px;font-weight:600;}
+.alert-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.alert-time{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* CATEGORY BARS */
+.cat-list{display:flex;flex-direction:column;gap:10px;}
+.cat-row{display:flex;flex-direction:column;gap:4px;}
+.cat-meta{display:flex;justify-content:space-between;align-items:center;}
+.cat-name{font-size:12px;font-weight:500;}
+.cat-val{font-size:12px;font-family:var(--mono);color:var(--muted);}
+.cat-bar-bg{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+
+/* AOV SPARKLINE AREA */
+.aov-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+.aov-stat{background:var(--bg3);border-radius:var(--r2);padding:10px 12px;}
+.aov-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.aov-val{font-size:16px;font-weight:700;font-family:var(--mono);}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .page-header{flex-direction:column;}
+  .topbar{padding:0 16px;}
+  .content{padding:16px;}
+}
+</style>
+  <script src="oeg-api.js"></script>
+  <link rel="stylesheet" href="oeg-design-system.css"/>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">OCH</div>
+      <div><div class="logo-text">OEG Cyber Hub</div><div class="logo-sub">Chain Dashboard</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Báo cáo</div>
+      <a href="OEG_M1_Dashboard.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M1 — Tổng quan</a>
+      <a href="OEG_M2_Fnet.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M2 — Fnet</a>
+      <a href="OEG_M3_FnB_Mart.html" class="nav-item active" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M3 — FnB &amp; Mart</a>
+      <a href="OEG_M4_NhanSu.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M4 — Nhân sự</a>
+      <a href="OEG_M5_PhongMay.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M5 — Phòng máy</a>
+      <a href="OEG_M6_PL.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M6 — P&amp;L</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Hệ thống</div>
+      <div class="nav-item"><span class="dot"></span>Nhập liệu ngày</div>
+      <div class="nav-item"><span class="dot"></span>Wiki / SOP</div>
+      <div class="nav-item"><span class="dot"></span>Cài đặt KPI</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">AN</div>
+      <div><div class="user-name">Andrew</div><div class="user-role">Chain Director</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="breadcrumb">Dashboard / <span id="breadcrumbLabel">M3 — FnB</span></div>
+    </div>
+    <div class="topbar-right">
+      <span id="clock" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="render()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">FnB &amp; Mart</div>
+        <div class="page-meta" id="dateLabel"></div>
+      </div>
+      <div class="tab-row">
+        <div class="tab active" onclick="setPeriod('day',this)">Ngày</div>
+        <div class="tab" onclick="setPeriod('week',this)">Tuần</div>
+        <div class="tab" onclick="setPeriod('month',this)">Tháng</div>
+      </div>
+    </div>
+
+    <!-- CHANNEL SWITCH -->
+    <div class="channel-switch" id="channelSwitch">
+      <button class="ch-tab active-fnb" id="tabFnB" onclick="setChannel('fnb')">
+        <span class="ch-icon">🍜</span> Food &amp; Beverage
+        <span class="ch-badge ch-badge-fnb" id="fnbRevBadge"></span>
+      </button>
+      <button class="ch-tab" id="tabMart" onclick="setChannel('mart')">
+        <span class="ch-icon">🛒</span> Mart
+        <span class="ch-badge ch-badge-mart" id="martRevBadge"></span>
+      </button>
+    </div>
+
+    <!-- BRANCH SELECTOR -->
+    <div class="branch-selector" id="branchSelector"></div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- ROW 1: Revenue chart + Category breakdown -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card" style="grid-column:span 2">
+        <div class="card-header">
+          <div>
+            <div class="card-title" id="revChartTitle">Doanh thu 7 ngày</div>
+            <div class="card-meta" id="revChartMeta"></div>
+          </div>
+          <span class="badge" id="revBadge"></span>
+        </div>
+        <div style="height:190px">
+          <svg id="revChart" class="chart-svg" viewBox="0 0 700 180" preserveAspectRatio="none" style="height:190px"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Top SKU + Category/Stock -->
+    <div class="grid-2" style="margin-bottom:16px">
+
+      <!-- TOP SKU -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="skuTitle">Top SKU bán chạy</div>
+          <span class="badge" id="skuPeriodBadge"></span>
+        </div>
+        <table class="sku-table" id="skuTable">
+          <thead><tr>
+            <th>#</th><th>Sản phẩm</th><th>SL</th><th>Doanh thu</th><th>% tổng</th>
+          </tr></thead>
+          <tbody id="skuBody"></tbody>
+        </table>
+      </div>
+
+      <!-- CATEGORY (FnB) or STOCK (Mart) -->
+      <div class="card" id="rightCard">
+        <div class="card-header">
+          <div class="card-title" id="rightCardTitle">Doanh thu theo danh mục</div>
+          <span class="badge" id="rightCardBadge"></span>
+        </div>
+        <div id="rightCardBody"></div>
+      </div>
+
+    </div>
+
+    <!-- ROW 3: Branch table + Alerts -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="branchTableTitle">Chi tiết theo cơ sở</div>
+          <div class="card-meta" id="branchTableMeta"></div>
+        </div>
+        <table class="branch-table" id="branchTable">
+          <thead id="branchTableHead"></thead>
+          <tbody id="branchTableBody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="alertTitle">Cảnh báo</div>
+          <span class="badge" id="alertBadge"></span>
+        </div>
+        <div class="alert-panel" id="alertPanel"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ─── CONFIG ─────────────────────────────────────────────────
+const BRANCHES = ['Stadium','Tây Sơn','LL Quân','Trần Vỹ','TQ Hoàn','Chiến Thắng'];
+const DOW_NAMES = ['CN','T2','T3','T4','T5','T6','T7'];
+const DOW_W = [1.30,0.80,0.80,0.88,0.92,1.00,1.25];
+
+// Monthly KPIs T4/2026 — thật từ CONFIG_KPI Sheets
+const FNB_KPI = {'Stadium':425843172,'Tây Sơn':205727692,'LL Quân':224741105,'Trần Vỹ':222786036,'TQ Hoàn':203765738,'Chiến Thắng':187414122};
+const MART_KPI= {'Stadium':193480919,'Tây Sơn':204653651,'LL Quân':222219325,'Trần Vỹ':198421946,'TQ Hoàn':198501710,'Chiến Thắng':168504824};
+
+// ─── SHEETS DATA ─────────────────────────────────────────────
+const SHEET_ID = '17ld-H9xCP6YVEmlEH23g1O9xNy5aFptKv6gmj-ntFGA';
+let RAW_FNB  = {}; // "YYYY-MM-DD|branch" → {revenue, orders, aov}
+let RAW_MART = {}; // "YYYY-MM-DD|branch" → {revenue, transactions, aov}
+let SHEETS_LOADED = false;
+
+function parseVND(s){ return parseInt(String(s||0).replace(/\./g,''))||0; }
+
+async function loadSheetsData(){
+  const base = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+  async function fetchCSV(sheetName){
+    const r = await fetch(`${base}&sheet=${encodeURIComponent(sheetName)}`);
+    const text = await r.text();
+    const lines = text.trim().split('\n');
+    const header = lines[0].replace(/"/g,'').split(',');
+    return lines.slice(1).map(line=>{
+      const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$)/g)||[];
+      const obj={};
+      header.forEach((h,i)=>{ obj[h.trim()]=(vals[i]||'').replace(/^"|"$/g,'').trim(); });
+      return obj;
+    });
+  }
+  const [fnbRows, martRows] = await Promise.all([
+    fetchCSV('RAW_FnB'), fetchCSV('RAW_Mart')
+  ]);
+  fnbRows.forEach(r=>{
+    const key=`${r.date}|${r.branch}`;
+    if(!r.date||!r.branch) return;
+    RAW_FNB[key]={revenue:parseVND(r.revenue),orders:parseInt(r.orders)||0,aov:parseVND(r.aov)};
+  });
+  martRows.forEach(r=>{
+    const key=`${r.date}|${r.branch}`;
+    if(!r.date||!r.branch) return;
+    RAW_MART[key]={revenue:parseVND(r.revenue),transactions:parseInt(r.transactions)||0,aov:parseVND(r.aov)};
+  });
+  SHEETS_LOADED = true;
+  console.log(`[OEG M3] FnB: ${Object.keys(RAW_FNB).length} rows, Mart: ${Object.keys(RAW_MART).length} rows`);
+}
+
+function getRealBranchDay(ch, branch, date){
+  const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}|${branch}`;
+  const kpiMap = ch==='fnb'?FNB_KPI:MART_KPI;
+  const kpi = dayKPI(kpiMap, branch, date);
+  if(SHEETS_LOADED){
+    const raw = ch==='fnb' ? RAW_FNB[key] : RAW_MART[key];
+    if(raw && raw.revenue>0){
+      const bIdx = BRANCHES.indexOf(branch);
+      const fallback = genBranchDay(ch, branch, date, bIdx);
+      return {...fallback, revenue:raw.revenue, orders:raw.orders||raw.transactions||fallback.orders, aov:raw.aov||fallback.aov, kpi};
+    }
+  }
+  return genBranchDay(ch, branch, date, BRANCHES.indexOf(branch));
+}
+
+// FnB SKUs
+const FNB_SKUS = [
+  {name:'Nước ngọt lon',cat:'Đồ uống',cost:0.45},
+  {name:'Cà phê đóng gói',cat:'Đồ uống',cost:0.38},
+  {name:'Trà sữa',cat:'Đồ uống',cost:0.42},
+  {name:'Mì ly',cat:'Ăn nhanh',cost:0.52},
+  {name:'Bánh snack',cat:'Ăn vặt',cost:0.40},
+  {name:'Nước tăng lực',cat:'Đồ uống',cost:0.48},
+  {name:'Sandwich',cat:'Ăn nhanh',cost:0.55},
+  {name:'Kẹo / Gum',cat:'Ăn vặt',cost:0.35},
+];
+const FNB_CATS = ['Đồ uống','Ăn nhanh','Ăn vặt'];
+const FNB_CAT_SPLIT = {'Đồ uống':0.58,'Ăn nhanh':0.27,'Ăn vặt':0.15};
+
+// Mart SKUs
+const MART_SKUS = [
+  {name:'Nước suối chai',cat:'Đồ uống',cost:0.40,unit:'chai',expDays:180},
+  {name:'Khăn giấy',cat:'Tiêu dùng',cost:0.50,unit:'gói',expDays:730},
+  {name:'Tai nghe có dây',cat:'Phụ kiện',cost:0.62,unit:'cái',expDays:9999},
+  {name:'Pin AA/AAA',cat:'Phụ kiện',cost:0.55,unit:'vỉ',expDays:9999},
+  {name:'Cáp sạc',cat:'Phụ kiện',cost:0.58,unit:'cái',expDays:9999},
+  {name:'Nước rửa tay',cat:'Tiêu dùng',cost:0.48,unit:'chai',expDays:365},
+  {name:'Kẹo cao su',cat:'Đồ ăn',cost:0.38,unit:'gói',expDays:60},
+  {name:'Bánh quy',cat:'Đồ ăn',cost:0.44,unit:'gói',expDays:45},
+];
+const MART_CATS = ['Đồ uống','Phụ kiện','Tiêu dùng','Đồ ăn'];
+const MART_CAT_SPLIT = {'Đồ uống':0.30,'Phụ kiện':0.38,'Tiêu dùng':0.18,'Đồ ăn':0.14};
+
+// ─── STATE ──────────────────────────────────────────────────
+let channel = 'fnb';   // 'fnb' | 'mart'
+let period  = 'day';   // 'day' | 'week' | 'month'
+let activeBranch = 'all';
+
+// ─── SEED RNG ───────────────────────────────────────────────
+let _seed = 77;
+function sr(){_seed=(_seed*1103515245+12345)&0x7fffffff;return _seed/0x7fffffff;}
+function reseed(s){_seed=s;}
+
+// ─── DATA GENERATORS ────────────────────────────────────────
+function dayKPI(kpiMap, branch, date){
+  const days=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+  return Math.round((kpiMap[branch]/days)*DOW_W[date.getDay()]);
+}
+
+function genBranchDay(ch, branch, date, bIdx){
+  reseed(200+bIdx*19+date.getDate()*37+date.getMonth()*71+(ch==='mart'?500:0));
+  const kpiMap = ch==='fnb'?FNB_KPI:MART_KPI;
+  const skus   = ch==='fnb'?FNB_SKUS:MART_SKUS;
+  const catSp  = ch==='fnb'?FNB_CAT_SPLIT:MART_CAT_SPLIT;
+
+  const kpi = dayKPI(kpiMap, branch, date);
+  const factor = 0.75 + sr()*0.50;
+  const revenue = Math.round(kpi * factor);
+  const avgOrderVal = ch==='fnb' ? 28000+Math.round(sr()*22000) : 45000+Math.round(sr()*35000);
+  const orders = Math.max(1, Math.round(revenue / avgOrderVal));
+  const aov = Math.round(revenue / orders);
+
+  // SKU quantities
+  const skuData = skus.map((s,i)=>{
+    reseed(300+bIdx*7+i*13+date.getDate());
+    const qty = Math.round(2+sr()*18);
+    const price= ch==='fnb'?15000+Math.round(sr()*35000):20000+Math.round(sr()*80000);
+    return {name:s.name,cat:s.cat,cost:s.cost,qty,price,revenue:qty*price};
+  }).sort((a,b)=>b.revenue-a.revenue);
+
+  // Category breakdown
+  const catRevenue={};
+  (ch==='fnb'?FNB_CATS:MART_CATS).forEach(c=>{
+    catRevenue[c]=Math.round(revenue*(catSp[c]||0)*(0.9+sr()*0.2));
+  });
+
+  // Stock levels (Mart only)
+  let stockData=null;
+  if(ch==='mart'){
+    stockData=MART_SKUS.map((s,i)=>{
+      reseed(400+bIdx*11+i*17);
+      const stock=Math.round(5+sr()*95);
+      const minStock=10;
+      return {name:s.name,cat:s.cat,stock,minStock,expDays:s.expDays,unit:s.unit};
+    });
+  }
+
+  // Margin
+  const avgCost = skuData.reduce((a,s)=>a+s.cost,0)/skuData.length;
+  const cogs = Math.round(revenue * avgCost);
+  const margin = revenue - cogs;
+
+  return {revenue,kpi,orders,aov,skuData,catRevenue,stockData,margin,cogs,factor};
+}
+
+function buildDays(ch, n=7){
+  const days=[];
+  const today=new Date();
+  for(let i=n-1;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const branches={};
+    BRANCHES.forEach((b,idx)=>{branches[b]=getRealBranchDay(ch,b,d,idx);});
+    days.push({date:d,branches});
+  }
+  return days;
+}
+
+function buildWeeks(ch, n=4){
+  const weeks=[];
+  const today=new Date();
+  for(let w=n-1;w>=0;w--){
+    const branches={};
+    BRANCHES.forEach((b,idx)=>{
+      let rev=0,kpi=0,orders=0,margin=0,cogs=0;
+      const skuAgg={};const catAgg={};
+      for(let d=0;d<7;d++){
+        const dt=new Date(today);dt.setDate(today.getDate()-w*7-d);
+        const dd=getRealBranchDay(ch,b,dt);
+        rev+=dd.revenue;kpi+=dd.kpi;orders+=dd.orders;margin+=dd.margin;cogs+=dd.cogs;
+        dd.skuData.forEach(s=>{skuAgg[s.name]=(skuAgg[s.name]||{name:s.name,cat:s.cat,qty:0,revenue:0,price:s.price,cost:s.cost});skuAgg[s.name].qty+=s.qty;skuAgg[s.name].revenue+=s.revenue;});
+        Object.keys(dd.catRevenue).forEach(c=>{catAgg[c]=(catAgg[c]||0)+dd.catRevenue[c];});
+      }
+      const aov=orders>0?Math.round(rev/orders):0;
+      const skuData=Object.values(skuAgg).sort((a,b)=>b.revenue-a.revenue);
+      // last day stock
+      const lastDt=new Date(today);lastDt.setDate(today.getDate()-w*7);
+      const lastDay=genBranchDay(ch,b,lastDt,idx);
+      branches[b]={revenue:rev,kpi,orders,aov,skuData,catRevenue:catAgg,stockData:lastDay.stockData,margin,cogs,factor:rev/kpi};
+    });
+    weeks.push({label:`Tuần ${n-w}`,branches});
+  }
+  return weeks;
+}
+
+// Cache
+const cache={};
+function getData(ch){
+  if(!cache[ch]){cache[ch]={days:buildDays(ch),weeks:buildWeeks(ch)};}
+  return cache[ch];
+}
+
+// ─── UTILS ──────────────────────────────────────────────────
+function fmt(n){return Math.round(n).toLocaleString('vi-VN');}
+function fmtM(n){return (n/1e6).toFixed(1)+'M';}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function fmtDate(d){return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
+function dow(d){return DOW_NAMES[d.getDay()];}
+function clrPct(p){return p>=100?'green':p>=80?'amber':'red';}
+function dotClr(p){return p>=100?'var(--green)':p>=80?'var(--amber)':'var(--red)';}
+function chColor(){return channel==='fnb'?'var(--fnb-c)':'var(--mart-c)';}
+function chClass(){return channel==='fnb'?'fnb':'mart';}
+
+function getPeriodData(){
+  const d=getData(channel);
+  if(period==='day') return {type:'day', items:d.days};
+  return {type:'week', items:d.weeks};
+}
+
+function getActiveBranches(){return activeBranch==='all'?BRANCHES:[activeBranch];}
+
+function aggBranches(dataItem){
+  const brs=getActiveBranches();
+  const recs=brs.map(b=>dataItem.branches[b]);
+  return recs.reduce((acc,r)=>{
+    acc.revenue+=r.revenue;acc.kpi+=r.kpi;acc.orders+=r.orders;acc.margin+=r.margin;acc.cogs+=r.cogs;
+    return acc;
+  },{revenue:0,kpi:0,orders:0,margin:0,cogs:0});
+}
+
+// ─── RENDER MAIN ────────────────────────────────────────────
+function render(){
+  updateChannelUI();
+  renderBranchSelector();
+  const pd=getPeriodData();
+  const lastItem=pd.items[pd.items.length-1];
+  const agg=aggBranches(lastItem);
+  const kpiPct=pct(agg.revenue,agg.kpi);
+  const aov=agg.orders>0?Math.round(agg.revenue/agg.orders):0;
+  const marginPct=agg.revenue>0?Math.round(agg.margin/agg.revenue*100):0;
+
+  // Date label
+  const dateStr = pd.type==='day'
+    ? `${dow(lastItem.date)}, ${fmtDate(lastItem.date)}`
+    : `7 ngày gần nhất`;
+  document.getElementById('dateLabel').textContent =
+    `${channel==='fnb'?'Food & Beverage':'Mart'} — ${dateStr}`;
+
+  // Quick badges on channel switch
+  const todayFnb=getData('fnb').days[6];
+  const todayMart=getData('mart').days[6];
+  const fnbTot=BRANCHES.reduce((a,b)=>a+todayFnb.branches[b].revenue,0);
+  const martTot=BRANCHES.reduce((a,b)=>a+todayMart.branches[b].revenue,0);
+  document.getElementById('fnbRevBadge').textContent=fmtM(fnbTot);
+  document.getElementById('martRevBadge').textContent=fmtM(martTot);
+
+  // KPI cards
+  const c=clrPct(kpiPct);
+  if(channel==='fnb'){
+    renderKPIs([
+      {label:'Doanh thu FnB',val:fmt(agg.revenue),sub:`KPI: ${fmt(agg.kpi)}`,pct:kpiPct,color:c},
+      {label:'Số order',val:fmt(agg.orders),sub:pd.type==='day'?'Hôm nay':'Tuần này',pct:null,color:'fnb'},
+      {label:'AOV',val:fmt(aov),sub:'VNĐ / order',pct:null,color:'fnb'},
+      {label:'Margin gộp',val:marginPct+'%',sub:`${fmt(agg.margin)} VNĐ`,pct:marginPct,color:marginPct>=50?'green':marginPct>=40?'amber':'red',maxPct:100},
+      {label:'KPI%',val:kpiPct+'%',sub:'Hoàn thành',pct:kpiPct,color:c},
+    ]);
+  } else {
+    renderKPIs([
+      {label:'Doanh thu Mart',val:fmt(agg.revenue),sub:`KPI: ${fmt(agg.kpi)}`,pct:kpiPct,color:c},
+      {label:'Giao dịch',val:fmt(agg.orders),sub:pd.type==='day'?'Hôm nay':'Tuần này',pct:null,color:'mart'},
+      {label:'AOV',val:fmt(aov),sub:'VNĐ / giao dịch',pct:null,color:'mart'},
+      {label:'Margin gộp',val:marginPct+'%',sub:`${fmt(agg.margin)} VNĐ`,pct:marginPct,color:marginPct>=45?'green':marginPct>=35?'amber':'red',maxPct:100},
+      {label:'KPI%',val:kpiPct+'%',sub:'Hoàn thành',pct:kpiPct,color:c},
+    ]);
+  }
+
+  // Revenue chart
+  const chartData=pd.items.map(item=>{
+    const a=aggBranches(item);
+    return {label:pd.type==='day'?dow(item.date):item.label,val:a.revenue,kpi:a.kpi};
+  });
+  renderRevChart(chartData,kpiPct);
+
+  // Top SKU (aggregate across active branches for last period)
+  const skuAgg={};
+  getActiveBranches().forEach(b=>{
+    (lastItem.branches[b].skuData||[]).forEach(s=>{
+      if(!skuAgg[s.name])skuAgg[s.name]={name:s.name,cat:s.cat,qty:0,revenue:0};
+      skuAgg[s.name].qty+=s.qty;
+      skuAgg[s.name].revenue+=s.revenue;
+    });
+  });
+  const topSKU=Object.values(skuAgg).sort((a,b)=>b.revenue-a.revenue).slice(0,8);
+  renderSKU(topSKU, agg.revenue, pd.type==='day'?'Hôm nay':'Tuần này');
+
+  // Right card: category (FnB) or stock (Mart)
+  if(channel==='fnb'){
+    const catAgg={};
+    getActiveBranches().forEach(b=>{
+      Object.entries(lastItem.branches[b].catRevenue||{}).forEach(([c,v])=>{catAgg[c]=(catAgg[c]||0)+v;});
+    });
+    renderCatCard(catAgg, agg.revenue);
+  } else {
+    const allStock=[];
+    MART_SKUS.forEach(s=>{
+      let totalStock=0;
+      getActiveBranches().forEach(b=>{
+        const sd=(lastItem.branches[b].stockData||[]).find(x=>x.name===s.name);
+        if(sd)totalStock+=sd.stock;
+      });
+      allStock.push({name:s.name,cat:s.cat,stock:totalStock,minStock:10*getActiveBranches().length,expDays:s.expDays,unit:s.unit});
+    });
+    renderStockCard(allStock);
+  }
+
+  // Branch table
+  const bRows=BRANCHES.map(b=>{
+    const bd=lastItem.branches[b];
+    const p=pct(bd.revenue,bd.kpi);
+    const aov=bd.orders>0?Math.round(bd.revenue/bd.orders):0;
+    const mp=bd.revenue>0?Math.round(bd.margin/bd.revenue*100):0;
+    return {name:b,revenue:bd.revenue,kpi:bd.kpi,orders:bd.orders,aov,margin:mp,kpiPct:p};
+  }).sort((a,b)=>b.kpiPct-a.kpiPct);
+  renderBranchTable(bRows, pd.type==='day'?fmtDate(lastItem.date):'Tuần này');
+
+  // Alerts
+  renderAlerts(bRows, topSKU, channel==='mart'?
+    (() => {
+      const allStock=[];
+      MART_SKUS.forEach(s=>{
+        let totalStock=0;
+        BRANCHES.forEach(b=>{const sd=(lastItem.branches[b].stockData||[]).find(x=>x.name===s.name);if(sd)totalStock+=sd.stock;});
+        allStock.push({name:s.name,stock:totalStock,minStock:10*BRANCHES.length,expDays:s.expDays});
+      });
+      return allStock;
+    })() : null
+  );
+}
+
+// ─── COMPONENT RENDERERS ────────────────────────────────────
+function updateChannelUI(){
+  const isFnb=channel==='fnb';
+  document.getElementById('pageTitle').innerHTML=isFnb?'Food &amp; Beverage':'Mart / Bán lẻ';
+  document.getElementById('breadcrumbLabel').textContent=isFnb?'M3 — FnB':'M3 — Mart';
+  document.getElementById('alertTitle').textContent=isFnb?'Cảnh báo FnB':'Cảnh báo Mart';
+  document.getElementById('navM3').className=`nav-item active${isFnb?'':' mart'}`;
+  document.getElementById('tabFnB').className=`ch-tab${isFnb?' active-fnb':''}`;
+  document.getElementById('tabMart').className=`ch-tab${!isFnb?' active-mart':''}`;
+  // branch chip colors
+  document.querySelectorAll('.branch-chip:not(.all-chip)').forEach(el=>{
+    el.className='branch-chip'+(el.dataset.branch===activeBranch?' active-'+(isFnb?'fnb':'mart'):'');
+    el.dataset.mode=isFnb?'fnb':'mart';
+  });
+}
+
+function renderBranchSelector(){
+  const isFnb=channel==='fnb';
+  const ac=activeBranch;
+  document.getElementById('branchSelector').innerHTML=
+    `<div class="branch-chip all-chip${ac==='all'?' active-'+(isFnb?'fnb':'mart'):''}" onclick="setBranch('all')">Tất cả cơ sở</div>`+
+    BRANCHES.map(b=>`<div class="branch-chip${ac===b?' active-'+(isFnb?'fnb':'mart'):''}" data-branch="${b}" onclick="setBranch('${b}')">${b}</div>`).join('');
+}
+
+function renderKPIs(cards){
+  document.getElementById('kpiGrid').innerHTML=cards.map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value${c.val.length>9?' sm':''}">${c.val}</div>
+      <div class="kpi-sub">
+        ${c.pct!==null?`<span class="kpi-delta ${c.pct>=(c.color==='red'?0:100)?'up':c.pct>=80?'wn':'dn'}">${c.pct>=100?'▲':'▼'} ${c.pct}%</span> `:''}
+        <span>${c.sub}</span>
+      </div>
+      ${c.pct!==null?`<div class="kpi-progress"><div class="kpi-bar ${c.color}" style="width:${Math.min(c.pct,100)}%"></div></div>`:''}
+    </div>`).join('');
+}
+
+function renderRevChart(data, totalKpiPct){
+  const svg=document.getElementById('revChart');
+  const W=700,H=180,pl=8,pr=20,pt=22,pb=30;
+  const iW=W-pl-pr,iH=H-pt-pb;
+  const allV=[...data.map(d=>d.val),...data.map(d=>d.kpi)];
+  const minV=Math.min(...allV)*0.88,maxV=Math.max(...allV)*1.06;
+  const sy=v=>pt+iH-((v-minV)/(maxV-minV))*iH;
+  const sx=i=>pl+(i/(data.length-1))*iW;
+  const revPts=data.map((d,i)=>`${sx(i)},${sy(d.val)}`).join(' ');
+  const kpiPts=data.map((d,i)=>`${sx(i)},${sy(d.kpi)}`).join(' ');
+  const areaBot=`${sx(data.length-1)},${pt+iH} ${sx(0)},${pt+iH}`;
+  const col=channel==='fnb'?'#f0883e':'#39c5b0';
+  const colLight=channel==='fnb'?'rgba(240,136,62,':'rgba(57,197,176,';
+
+  document.getElementById('revChartTitle').textContent=
+    `Doanh thu ${channel==='fnb'?'FnB':'Mart'} — ${data.length===7?'7 ngày':'4 tuần'}`;
+  document.getElementById('revChartMeta').textContent='So với KPI phân bổ theo thứ';
+  document.getElementById('revBadge').textContent=totalKpiPct+'% KPI';
+  document.getElementById('revBadge').className=`badge badge-${totalKpiPct>=100?'up':totalKpiPct>=80?'warn':'down'}`;
+
+  svg.innerHTML=`
+    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${col}" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${[0,0.33,0.67,1].map(f=>{const y=pt+f*iH,v=maxV-f*(maxV-minV);
+      return `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+              <text x="${pl}" y="${y-3}" fill="#484f58" font-size="9" font-family="JetBrains Mono">${fmtM(v)}</text>`;
+    }).join('')}
+    <polygon points="${revPts} ${areaBot}" fill="url(#cg)"/>
+    <polyline points="${kpiPts}" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.6"/>
+    <polyline points="${revPts}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${data.map((d,i)=>{
+      const p=pct(d.val,d.kpi);
+      const dc=p>=100?'var(--green)':p>=80?'var(--amber)':'var(--red)';
+      return `<circle cx="${sx(i)}" cy="${sy(d.val)}" r="4.5" fill="${dc}" stroke="var(--bg2)" stroke-width="2"/>
+              <text x="${sx(i)}" y="${H-4}" text-anchor="middle" fill="#8b949e" font-size="10" font-family="Be Vietnam Pro">${d.label}</text>`;
+    }).join('')}
+    <line x1="${W-120}" y1="10" x2="${W-105}" y2="10" stroke="${col}" stroke-width="2.5"/>
+    <text x="${W-100}" y="14" fill="#8b949e" font-size="9" font-family="Be Vietnam Pro">Thực tế</text>
+    <line x1="${W-60}" y1="10" x2="${W-45}" y2="10" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 3"/>
+    <text x="${W-40}" y="14" fill="#8b949e" font-size="9" font-family="Be Vietnam Pro">KPI</text>`;
+}
+
+function renderSKU(skus, totalRev, periodLabel){
+  document.getElementById('skuTitle').textContent=`Top SKU bán chạy — ${channel==='fnb'?'FnB':'Mart'}`;
+  document.getElementById('skuPeriodBadge').textContent=periodLabel;
+  document.getElementById('skuPeriodBadge').className=`badge badge-${channel==='fnb'?'orange':'teal'}`;
+  const maxRev=skus[0]?.revenue||1;
+  const rankColors=['r1','r2','r3'];
+  document.getElementById('skuBody').innerHTML=skus.map((s,i)=>`
+    <tr>
+      <td><span class="sku-rank ${rankColors[i]||''}">${i+1}</span></td>
+      <td>
+        <div style="font-weight:500;font-size:12px">${s.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${s.cat}</div>
+      </td>
+      <td>${fmt(s.qty)}</td>
+      <td>
+        <div class="sku-bar-cell">
+          <div class="sku-mini-bar" style="width:${Math.round(s.revenue/maxRev*60)}px;background:${chColor()}"></div>
+          <span>${fmtM(s.revenue)}</span>
+        </div>
+      </td>
+      <td><span style="color:var(--muted)">${pct(s.revenue,totalRev)}%</span></td>
+    </tr>`).join('');
+}
+
+function renderCatCard(catRevenue, totalRev){
+  document.getElementById('rightCardTitle').textContent='Doanh thu theo danh mục';
+  document.getElementById('rightCardBadge').textContent='FnB';
+  document.getElementById('rightCardBadge').className='badge badge-orange';
+  const cats=Object.entries(catRevenue).sort((a,b)=>b[1]-a[1]);
+  const maxCat=cats[0]?.[1]||1;
+  document.getElementById('rightCardBody').innerHTML=`
+    <div class="cat-list">
+      ${cats.map(([name,val])=>`
+        <div class="cat-row">
+          <div class="cat-meta">
+            <span class="cat-name">${name}</span>
+            <span class="cat-val">${fmtM(val)} &nbsp;<span style="color:var(--dim)">${pct(val,totalRev)}%</span></span>
+          </div>
+          <div class="cat-bar-bg">
+            <div class="cat-bar-fill" style="width:${pct(val,maxCat)}%;background:var(--fnb-c)"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="aov-grid" style="margin-top:16px">
+      <div class="aov-stat">
+        <div class="aov-label">Đồ uống vs Ăn</div>
+        <div class="aov-val" style="color:var(--fnb-c)">${pct((catRevenue['Đồ uống']||0),totalRev)}%</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">tỷ trọng đồ uống</div>
+      </div>
+      <div class="aov-stat">
+        <div class="aov-label">Danh mục chính</div>
+        <div class="aov-val" style="font-size:13px;color:var(--text)">${cats[0]?.[0]||'—'}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${fmtM(cats[0]?.[1]||0)} doanh thu</div>
+      </div>
+    </div>`;
+}
+
+function renderStockCard(stockItems){
+  document.getElementById('rightCardTitle').textContent='Tồn kho & Hạn sử dụng';
+  document.getElementById('rightCardBadge').textContent='Mart';
+  document.getElementById('rightCardBadge').className='badge badge-teal';
+  const today=new Date();
+  document.getElementById('rightCardBody').innerHTML=`
+    <table class="stock-table">
+      <thead><tr>
+        <th>Sản phẩm</th><th>Tồn</th><th>Trạng thái</th><th>Hạn SD</th>
+      </tr></thead>
+      <tbody>${stockItems.map(s=>{
+        const isLow=s.stock<=s.minStock;
+        const isOut=s.stock===0;
+        const stockCls=isOut?'stock-out':isLow?'stock-low':'stock-ok';
+        const stockLabel=isOut?'Hết hàng':isLow?'Sắp hết':'Đủ';
+        let expLabel='—',expCls='exp-ok';
+        if(s.expDays<9999){
+          const expDate=new Date(today);expDate.setDate(today.getDate()+s.expDays);
+          expLabel=`${s.expDays}n`;
+          if(s.expDays<=7){expCls='exp-urgent';expLabel=`⚠ ${s.expDays}n`;}
+          else if(s.expDays<=30){expCls='exp-soon';}
+        }
+        return `<tr>
+          <td><div style="font-weight:500;font-size:12px">${s.name}</div><div style="font-size:10px;color:var(--muted)">${s.cat}</div></td>
+          <td style="font-family:var(--mono)">${s.stock}</td>
+          <td><span class="stock-pill ${stockCls}">${stockLabel}</span></td>
+          <td class="${expCls}" style="font-size:11px">${expLabel}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+function renderBranchTable(rows, meta){
+  document.getElementById('branchTableTitle').textContent=`Chi tiết cơ sở — ${channel==='fnb'?'FnB':'Mart'}`;
+  document.getElementById('branchTableMeta').textContent=meta;
+  const ch2=channel==='fnb'?'FnB':'Mart';
+  document.getElementById('branchTableHead').innerHTML=`<tr>
+    <th>Cơ sở</th><th>DT ${ch2}</th><th>KPI</th><th>${channel==='fnb'?'Order':'GD'}</th><th>AOV</th><th>Margin</th><th>KPI%</th>
+  </tr>`;
+  document.getElementById('branchTableBody').innerHTML=rows.map(r=>`
+    <tr>
+      <td><div class="b-name"><span class="status-dot" style="background:${dotClr(r.kpiPct)}"></span>${r.name}</div></td>
+      <td>${fmtM(r.revenue)}</td>
+      <td>${fmtM(r.kpi)}</td>
+      <td>${fmt(r.orders)}</td>
+      <td>${fmt(r.aov)}</td>
+      <td><span style="color:${r.margin>=45?'var(--green)':r.margin>=35?'var(--amber)':'var(--red)'};font-family:var(--mono)">${r.margin}%</span></td>
+      <td><span class="badge badge-${r.kpiPct>=100?'up':r.kpiPct>=80?'warn':'down'}" style="font-size:10px">${r.kpiPct}%</span></td>
+    </tr>`).join('');
+}
+
+function renderAlerts(branchRows, topSKU, stockItems){
+  const alerts=[];
+
+  // KPI alerts
+  branchRows.forEach(r=>{
+    if(r.kpiPct<70) alerts.push({type:'danger',icon:'⚠',title:`${r.name} — ${channel==='fnb'?'FnB':'Mart'} ${r.kpiPct}% KPI`,desc:`DT: ${fmtM(r.revenue)} vs KPI ${fmtM(r.kpi)}. Còn thiếu ${fmtM(r.kpi-r.revenue)}`,time:'KPI ngày'});
+    else if(r.kpiPct<85) alerts.push({type:'warn',icon:'○',title:`${r.name} — ${r.kpiPct}% KPI`,desc:`Cần thêm ${fmtM(r.kpi-r.revenue)} để đạt KPI hôm nay`,time:'KPI ngày'});
+    if(r.margin<35) alerts.push({type:'warn',icon:'↓',title:`${r.name} — Margin ${r.margin}%`,desc:`Margin gộp thấp hơn ngưỡng 35%. Xem lại giá vốn hoặc mix sản phẩm.`,time:'Margin'});
+  });
+
+  // Mart: stock alerts
+  if(stockItems){
+    stockItems.forEach(s=>{
+      if(s.stock===0) alerts.push({type:'danger',icon:'✗',title:`Hết hàng: ${s.name}`,desc:`Tồn kho = 0. Cần nhập hàng ngay.`,time:'Tồn kho'});
+      else if(s.stock<=s.minStock) alerts.push({type:'warn',icon:'!',title:`Sắp hết: ${s.name}`,desc:`Tồn: ${s.stock} đơn vị (ngưỡng tối thiểu: ${s.minStock}). Lên kế hoạch nhập.`,time:'Tồn kho'});
+      if(s.expDays<9999&&s.expDays<=7) alerts.push({type:'danger',icon:'📅',title:`Sắp hết hạn: ${s.name}`,desc:`Hết hạn trong ${s.expDays} ngày. Ưu tiên bán hoặc trả hàng.`,time:'Hạn SD'});
+      else if(s.expDays<9999&&s.expDays<=30) alerts.push({type:'warn',icon:'📅',title:`Theo dõi hạn: ${s.name}`,desc:`Hết hạn trong ${s.expDays} ngày.`,time:'Hạn SD'});
+    });
+  }
+
+  // FnB: top SKU insight
+  if(channel==='fnb'&&topSKU.length>0){
+    alerts.push({type:'info',icon:'↑',title:`Top seller: ${topSKU[0].name}`,desc:`${fmtM(topSKU[0].revenue)} doanh thu, ${fmt(topSKU[0].qty)} phần. Đảm bảo không thiếu hàng.`,time:'FnB insight'});
+  }
+
+  if(alerts.length===0) alerts.push({type:'ok',icon:'✓',title:'Tất cả chỉ số bình thường',desc:`Không có cảnh báo nào cho ${channel==='fnb'?'FnB':'Mart'} hôm nay.`,time:''});
+
+  const warnCount=alerts.filter(a=>a.type==='danger'||a.type==='warn').length;
+  document.getElementById('alertBadge').textContent=`${warnCount} cảnh báo`;
+  document.getElementById('alertBadge').className=`badge badge-${alerts.some(a=>a.type==='danger')?'down':warnCount>0?'warn':'up'}`;
+
+  document.getElementById('alertPanel').innerHTML=alerts.slice(0,8).map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div>
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+        ${a.time?`<div class="alert-time">${a.time}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ─── INTERACTIONS ────────────────────────────────────────────
+function setChannel(ch){channel=ch;activeBranch='all';render();}
+function setPeriod(p,el){period=p;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');render();}
+function setBranch(b){activeBranch=b;render();}
+
+// ─── CLOCK ──────────────────────────────────────────────────
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+},1000);
+
+
+// ─── INIT ─────────────────────────────────────────────────────
+// Bước 1: render ngay với KPI đúng (không random)
+render();
+
+// Bước 2: fetch data thật từ Sheets → re-render
+loadSheetsData().then(()=>{
+  cache = {}; // clear cache để rebuild với data thật
+  render();
+  console.log('[OEG M3] Updated with real Sheets data ✓');
+}).catch(err=>{
+  console.warn('[OEG M3] Sheets fetch failed:', err.message);
+});
+
+// Bước 3: Google Sign-In (optional — chỉ cần để submit form)
+OEG.init(async (user) => {
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  if (nameEl) nameEl.textContent = user.name || user.email;
+  if (roleEl) roleEl.textContent = user.role || 'User';
+});
+
+
+
+</script>
+  <script src="oeg-shell.js"></script>
+</body>
+</html>
+

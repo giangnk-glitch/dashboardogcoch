@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OEG Cyber Hub — Đăng nhập</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="oeg-design-system.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font-family:'Be Vietnam Pro',sans-serif;color:var(--oeg-text);background:radial-gradient(circle at 20% 0%,rgba(232,50,74,.22),transparent 32rem),radial-gradient(circle at 84% 18%,rgba(56,139,253,.16),transparent 30rem),#070c13;display:grid;place-items:center;padding:24px}
+.login-card{width:min(100%,440px);border:1px solid var(--oeg-border);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025)),#111824;box-shadow:0 28px 90px rgba(0,0,0,.36);padding:30px}
+.mark{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#e8324a,#ff7584);color:#fff;font-weight:800;margin-bottom:20px;box-shadow:0 18px 42px rgba(232,50,74,.28)}
+h1{font-size:26px;line-height:1.15;margin-bottom:10px}
+p{color:#9dadc2;font-size:14px;line-height:1.7;margin-bottom:22px}
+.login-panel{border:1px solid rgba(148,163,184,.14);border-radius:16px;background:rgba(255,255,255,.035);padding:18px;display:grid;gap:14px}
+.remember{display:flex;align-items:center;gap:9px;color:var(--oeg-muted);font-size:13px}
+#loginStatus{min-height:18px;color:#ff7a7a;font-size:12px;line-height:1.5}
+.hint{margin-top:18px;color:var(--oeg-dim);font-size:12px;line-height:1.65}
+.role-table{margin-top:18px;border-top:1px solid rgba(148,163,184,.12);padding-top:14px;display:grid;gap:7px;color:#9dadc2;font-size:12px}
+.role-table strong{color:var(--oeg-text)}
+</style>
+</head>
+<body>
+  <main class="login-card">
+    <div class="mark">OCH</div>
+    <h1>Đăng nhập OEG Dashboard</h1>
+    <p>Dùng tài khoản Google được cấp quyền để truy cập dashboard, Wiki/SOP và các chức năng nhập liệu.</p>
+    <section class="login-panel">
+      <div id="googleLogin"></div>
+      <label class="remember"><input type="checkbox" id="rememberLogin"/> Ghi nhớ đăng nhập trên máy này</label>
+      <div id="loginStatus"></div>
+    </section>
+    <div class="role-table">
+      <div><strong>Admin:</strong> toàn quyền module, nhập liệu, KPI.</div>
+      <div><strong>Manager:</strong> xem toàn bộ, nhập liệu, không sửa cấu hình.</div>
+      <div><strong>Finance/HR/Branch Lead/Viewer:</strong> giới hạn theo module.</div>
+    </div>
+    <div class="hint">Cấu hình email/role tại file <code>oeg-auth-config.js</code>. Khi vận hành thật, đổi <code>requireKnownUser</code> thành <code>true</code>.</div>
+  </main>
+  <script src="oeg-auth-config.js" charset="UTF-8"></script>
+  <script src="oeg-auth.js" charset="UTF-8"></script>
+</body>
+</html>

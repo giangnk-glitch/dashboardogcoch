@@ -1,0 +1,886 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OEG Cyber Hub — M4 Nhân sự</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--bg4:#21262d;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e6edf3;--muted:#8b949e;--dim:#484f58;
+  --red:#F85149;--red-bg:rgba(248,81,73,0.12);
+  --green:#3fb950;--green-bg:rgba(63,185,80,0.12);
+  --amber:#d29922;--amber-bg:rgba(210,153,34,0.12);
+  --blue:#388bfd;--blue-bg:rgba(56,139,253,0.12);
+  --purple:#bc8cff;--purple-bg:rgba(188,140,255,0.12);
+  --pink:#f778ba;--pink-bg:rgba(247,120,186,0.12);
+  --accent:#e8324a;
+  --hr-c:#bc8cff;--hr-bg:rgba(188,140,255,0.12);
+  --font:'Be Vietnam Pro',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--r2:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s;}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.logo-text{font-size:13px;font-weight:600;line-height:1.3;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.nav{padding:12px 8px;flex:1;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);padding:0 8px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--hr-bg);color:var(--hr-c);}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.nav-item.active .dot{background:var(--hr-c);}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;}
+.user-role{font-size:10px;color:var(--muted);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;min-width:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:18px;height:1.5px;background:var(--muted);border-radius:2px;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb span{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-down{background:var(--red-bg);color:var(--red);}
+.badge-warn{background:var(--amber-bg);color:var(--amber);}
+.badge-purple{background:var(--purple-bg);color:var(--purple);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);}
+.badge-pink{background:var(--pink-bg);color:var(--pink);}
+
+.content{padding:24px;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.hr-badge{background:var(--hr-bg);color:var(--hr-c);border:1px solid rgba(188,140,255,0.3);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.page-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.tab-row{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:3px;}
+.tab{padding:6px 14px;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;}
+.tab.active{background:var(--bg4);color:var(--text);}
+
+/* SECTION TABS */
+.section-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+.stab{padding:7px 16px;border-radius:var(--r2);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--muted);background:transparent;transition:all .15s;}
+.stab:hover{border-color:var(--hr-c);color:var(--hr-c);}
+.stab.active{background:var(--hr-bg);border-color:var(--hr-c);color:var(--hr-c);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
+.kpi-card:hover{border-color:var(--border2);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-card.purple::before{background:var(--purple);}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.amber::before{background:var(--amber);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.blue::before{background:var(--blue);}
+.kpi-card.pink::before{background:var(--pink);}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.kpi-value{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1;}
+.kpi-value.sm{font-size:17px;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+.kpi-progress{margin-top:10px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.kpi-bar{height:100%;border-radius:2px;transition:width .6s;}
+.kpi-bar.purple{background:var(--purple);}
+.kpi-bar.green{background:var(--green);}
+.kpi-bar.amber{background:var(--amber);}
+.kpi-bar.red{background:var(--red);}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-meta{font-size:11px;color:var(--muted);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.span2{grid-column:span 2;}
+.chart-svg{width:100%;overflow:visible;}
+
+/* HEADCOUNT TABLE */
+.hc-table{width:100%;border-collapse:collapse;font-size:12px;}
+.hc-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.hc-table th:not(:first-child){text-align:center;}
+.hc-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.hc-table td:not(:first-child){text-align:center;font-family:var(--mono);}
+.hc-table tr:hover td{background:rgba(255,255,255,0.02);}
+.b-name{font-weight:500;display:flex;align-items:center;gap:8px;}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.hc-num{font-size:13px;font-weight:600;}
+.hc-vs{font-size:10px;}
+.hc-ok{color:var(--green);}
+.hc-low{color:var(--red);}
+.hc-warn{color:var(--amber);}
+
+/* ROLE PILL */
+.role-pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;margin:1px;}
+.role-sm{background:rgba(56,139,253,0.15);color:var(--blue);}
+.role-sl{background:rgba(188,140,255,0.15);color:var(--purple);}
+.role-asm{background:rgba(210,153,34,0.15);color:var(--amber);}
+.role-chr{background:rgba(63,185,80,0.15);color:var(--green);}
+
+/* TURNOVER CHART */
+.turnover-bar-row{display:flex;flex-direction:column;gap:8px;}
+.tv-row{display:flex;align-items:center;gap:10px;}
+.tv-label{font-size:12px;font-weight:500;width:90px;flex-shrink:0;}
+.tv-bar-bg{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.tv-bar-fill{height:100%;border-radius:4px;transition:width .6s;}
+.tv-val{font-size:11px;font-family:var(--mono);color:var(--muted);width:36px;text-align:right;flex-shrink:0;}
+.tv-badge{flex-shrink:0;}
+
+/* COMPETENCY */
+.comp-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;}
+.comp-card:hover{border-color:var(--border2);}
+.comp-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.comp-name{font-size:13px;font-weight:600;}
+.comp-meta{font-size:11px;color:var(--muted);}
+.comp-bars{display:flex;flex-direction:column;gap:6px;}
+.comp-row{display:flex;align-items:center;gap:8px;}
+.comp-label{font-size:11px;color:var(--muted);width:120px;flex-shrink:0;}
+.comp-bar-bg{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.comp-bar-fill{height:100%;border-radius:3px;}
+.comp-score{font-size:11px;font-family:var(--mono);color:var(--muted);width:24px;text-align:right;flex-shrink:0;}
+.comp-avg{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.comp-avg-label{font-size:11px;color:var(--muted);flex:1;}
+.comp-avg-val{font-size:15px;font-weight:700;font-family:var(--mono);}
+
+/* TRAINING LINKS */
+.training-grid{display:flex;flex-direction:column;gap:8px;}
+.training-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;text-decoration:none;}
+.training-card:hover{border-color:var(--hr-c);}
+.training-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.training-info{flex:1;min-width:0;}
+.training-title{font-size:13px;font-weight:600;color:var(--text);}
+.training-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.training-role{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;flex-shrink:0;}
+
+/* ALERT */
+.alert-panel{display:flex;flex-direction:column;gap:8px;}
+.alert-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r2);border-left:3px solid;background:var(--bg3);}
+.alert-card.danger{border-color:var(--red);}
+.alert-card.warn{border-color:var(--amber);}
+.alert-card.ok{border-color:var(--green);}
+.alert-card.info{border-color:var(--purple);}
+.alert-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.alert-title{font-size:12px;font-weight:600;}
+.alert-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.alert-time{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* STAFF MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;}
+.detail-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:slideUp .2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;border-radius:14px 14px 0 0;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.close-btn{width:28px;height:28px;border-radius:6px;background:var(--bg4);border:none;cursor:pointer;color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.close-btn:hover{background:var(--red-bg);color:var(--red);}
+.modal-body{padding:18px 22px 22px;}
+
+/* SECTION LABEL */
+.section-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .page-header{flex-direction:column;}
+  .topbar,.content{padding-left:16px;padding-right:16px;}
+}
+</style>
+  <script src="oeg-api.js"></script>
+  <link rel="stylesheet" href="oeg-design-system.css"/>
+  <script src="oeg-auth-config.js" charset="UTF-8"></script>
+  <script src="oeg-auth.js" charset="UTF-8"></script>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">OCH</div>
+      <div><div class="logo-text">OEG Cyber Hub</div><div class="logo-sub">Chain Dashboard</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Báo cáo</div>
+      <a href="OEG_M1_Dashboard.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M1 — Tổng quan</a>
+      <a href="OEG_M2_Fnet.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M2 — Fnet</a>
+      <a href="OEG_M3_FnB_Mart.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M3 — FnB &amp; Mart</a>
+      <a href="OEG_M4_NhanSu.html" class="nav-item active" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M4 — Nhân sự</a>
+      <a href="OEG_M5_PhongMay.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M5 — Phòng máy</a>
+      <a href="OEG_M6_PL.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M6 — P&amp;L</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Hệ thống</div>
+      <div class="nav-item"><span class="dot"></span>Nhập liệu ngày</div>
+      <a href="OEG_Wiki_SOP.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>Wiki / SOP</a>
+      <div class="nav-item"><span class="dot"></span>Cài đặt KPI</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">AN</div>
+      <div><div class="user-name">Andrew</div><div class="user-role">Chain Director</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"><span></span><span></span><span></span></div>
+      <div class="breadcrumb">Dashboard / <span>M4 — Nhân sự</span></div>
+    </div>
+    <div class="topbar-right">
+      <span id="clock" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="renderAll()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Nhân sự chuỗi <span class="hr-badge">HR</span></div>
+        <div class="page-meta" id="dateLabel"></div>
+      </div>
+      <div class="tab-row">
+        <div class="tab active" onclick="setPeriod('week',this)">Tuần</div>
+        <div class="tab" onclick="setPeriod('month',this)">Tháng</div>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="section-tabs">
+      <div class="stab active" onclick="setSection('overview',this)">Tổng quan</div>
+      <div class="stab" onclick="setSection('turnover',this)">Biến động</div>
+      <div class="stab" onclick="setSection('competency',this)">Năng lực 360°</div>
+      <div class="stab" onclick="setSection('training',this)">Tài liệu đào tạo</div>
+    </div>
+
+    <!-- SECTION: OVERVIEW -->
+    <div id="sec-overview">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card span2">
+          <div class="card-header">
+            <div class="card-title">Headcount theo cơ sở &amp; cấp bậc</div>
+            <span class="badge badge-purple" id="hcBadge"></span>
+          </div>
+          <table class="hc-table" id="hcTable">
+            <thead><tr>
+              <th>Cơ sở</th>
+              <th>CHT</th><th>Trưởng ca</th><th>Nhân viên</th>
+              <th>Tổng</th><th>Định biên</th><th>Thiếu/Thừa</th><th>Trạng thái ca</th>
+            </tr></thead>
+            <tbody id="hcBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Phân bổ theo cấp bậc — Chuỗi</div>
+            <span class="badge badge-purple">6 cơ sở</span>
+          </div>
+          <div style="height:180px">
+            <svg id="roleChart" class="chart-svg" viewBox="0 0 300 170" preserveAspectRatio="xMidYMid meet" style="height:180px"></svg>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Cảnh báo nhân sự</div>
+            <span class="badge" id="alertBadge"></span>
+          </div>
+          <div class="alert-panel" id="alertPanel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: TURNOVER -->
+    <div id="sec-turnover" style="display:none">
+      <div class="kpi-grid" id="tvKpiGrid"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="tvChartTitle">Biến động nhân sự — 8 tuần</div>
+            <span class="badge badge-warn" id="tvBadge"></span>
+          </div>
+          <div style="height:190px">
+            <svg id="tvChart" class="chart-svg" viewBox="0 0 320 180" preserveAspectRatio="none" style="height:190px"></svg>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Tỷ lệ nghỉ việc theo cơ sở</div>
+            <span class="badge badge-warn" id="tvPeriodBadge"></span>
+          </div>
+          <div class="turnover-bar-row" id="tvBranchBars"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title">Lý do nghỉ việc (phân loại)</div>
+          <span class="badge badge-blue">Tháng này</span>
+        </div>
+        <div id="reasonBars" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+
+    <!-- SECTION: COMPETENCY -->
+    <div id="sec-competency" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="section-label" style="margin-bottom:2px">Đánh giá năng lực 360° — 16 nhân viên</div>
+          <div style="font-size:12px;color:var(--muted)">Thang điểm 1–5 · 10 nhóm năng lực · Click để xem chi tiết</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="compFilterRow"></div>
+      </div>
+      <div class="grid-2">
+        <div id="compList" style="display:flex;flex-direction:column;gap:10px"></div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-title">Điểm TB chuỗi theo nhóm năng lực</div>
+              <span class="badge badge-purple">Radar tóm tắt</span>
+            </div>
+            <div style="height:220px;display:flex;align-items:center;justify-content:center">
+              <svg id="radarChart" viewBox="0 0 240 220" width="240" height="220"></svg>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Phân loại xếp hạng</div>
+            </div>
+            <div id="rankDist" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: TRAINING -->
+    <div id="sec-training" style="display:none">
+      <div style="margin-bottom:14px">
+        <div class="section-label" style="margin-bottom:2px">Tài liệu đào tạo theo vị trí</div>
+        <div style="font-size:12px;color:var(--muted)">Liên kết trực tiếp đến Wiki nội bộ OEG Cyber Hub</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="trainingFilterRow"></div>
+      <div class="training-grid" id="trainingList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STAFF DETAIL MODAL -->
+<div class="overlay" id="overlay" onclick="closeIfOutside(event)">
+  <div class="detail-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalName"></div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+const BRANCHES = ['Stadium','Tây Sơn','LL Quân','Trần Vỹ','TQ Hoàn','Chiến Thắng'];
+const DOW = ['CN','T2','T3','T4','T5','T6','T7'];
+
+// Headcount config: [CHT, SL(Trưởng ca), NV(Nhân viên)] — target vs actual
+const HC_TARGET = {
+  'Stadium':     {chr:1, sl:6, nv:18, total:25},
+  'Tây Sơn':    {chr:1, sl:5, nv:15, total:21},
+  'LL Quân':    {chr:1, sl:5, nv:14, total:20},
+  'Trần Vỹ':   {chr:1, sl:4, nv:13, total:18},
+  'TQ Hoàn':   {chr:1, sl:4, nv:12, total:17},
+  'Chiến Thắng':{chr:1, sl:4, nv:12, total:17},
+};
+const HC_ACTUAL = {
+  'Stadium':     {chr:1, sl:5, nv:17},
+  'Tây Sơn':    {chr:1, sl:5, nv:14},
+  'LL Quân':    {chr:1, sl:4, nv:13},
+  'Trần Vỹ':   {chr:1, sl:4, nv:12},
+  'TQ Hoàn':   {chr:1, sl:3, nv:11},
+  'Chiến Thắng':{chr:1, sl:4, nv:11},
+};
+
+// Shift status per branch (3 shifts/day)
+const SHIFT_STATUS = {
+  'Stadium':     'Đủ ca','Tây Sơn':'Đủ ca','LL Quân':'Thiếu 1','Trần Vỹ':'Đủ ca','TQ Hoàn':'Thiếu 2','Chiến Thắng':'Đủ ca'
+};
+
+// Turnover data — weekly for 8 weeks (quits)
+const TV_WEEKLY = [2,1,3,1,2,4,2,3];
+const TV_BY_BRANCH = {
+  'Stadium':4,'Tây Sơn':2,'LL Quân':3,'Trần Vỹ':1,'TQ Hoàn':5,'Chiến Thắng':2
+};
+const TV_REASONS = [
+  {reason:'Lương & đãi ngộ',count:6},
+  {reason:'Áp lực công việc',count:4},
+  {reason:'Chuyển địa điểm',count:3},
+  {reason:'Tìm việc khác',count:3},
+  {reason:'Lý do cá nhân',count:2},
+];
+
+// 10 competency groups
+const COMP_GROUPS = [
+  'Thái độ & Chuyên cần','Giao tiếp KH','Vận hành ca','PCCC & An toàn',
+  'FnB & Mart','Kỹ năng Fnet','Giải quyết vấn đề','Teamwork','Lãnh đạo nhóm','Tuân thủ SOP',
+];
+
+// 16 employees sample data
+let _s=55;function sr(){_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff;}
+const EMPLOYEES = [
+  {id:1,name:'Nguyễn Văn An',branch:'Stadium',role:'Trưởng ca',level:'SL'},
+  {id:2,name:'Trần Thị Bình',branch:'Stadium',role:'Nhân viên',level:'SM'},
+  {id:3,name:'Lê Minh Cường',branch:'Tây Sơn',role:'Trưởng ca',level:'SL'},
+  {id:4,name:'Phạm Thị Dung',branch:'Tây Sơn',role:'Nhân viên',level:'SM'},
+  {id:5,name:'Hoàng Văn Em',branch:'LL Quân',role:'Trưởng ca',level:'SL'},
+  {id:6,name:'Ngô Thị Phương',branch:'LL Quân',role:'Nhân viên',level:'SM'},
+  {id:7,name:'Bùi Quang Hải',branch:'Trần Vỹ',role:'Trưởng ca',level:'SL'},
+  {id:8,name:'Đỗ Thị Lan',branch:'Trần Vỹ',role:'Nhân viên',level:'SM'},
+  {id:9,name:'Vũ Minh Khoa',branch:'TQ Hoàn',role:'Trưởng ca',level:'SL'},
+  {id:10,name:'Đinh Thị Mai',branch:'TQ Hoàn',role:'Nhân viên',level:'SM'},
+  {id:11,name:'Phan Văn Nam',branch:'Chiến Thắng',role:'Trưởng ca',level:'SL'},
+  {id:12,name:'Lý Thị Oanh',branch:'Chiến Thắng',role:'Nhân viên',level:'SM'},
+  {id:13,name:'Trương Văn Phúc',branch:'Stadium',role:'Nhân viên',level:'SM'},
+  {id:14,name:'Mai Thị Quỳnh',branch:'Tây Sơn',role:'Nhân viên',level:'SM'},
+  {id:15,name:'Cao Minh Sơn',branch:'LL Quân',role:'Nhân viên',level:'SM'},
+  {id:16,name:'Đặng Thị Tuyết',branch:'Trần Vỹ',role:'Nhân viên',level:'SM'},
+].map((e,i)=>{
+  _s=100+i*29;
+  const scores=COMP_GROUPS.map(()=>Math.round((1.8+sr()*3.2)*10)/10);
+  const avg=Math.round(scores.reduce((a,v)=>a+v,0)/scores.length*10)/10;
+  const rank=avg>=4.2?'Xuất sắc':avg>=3.5?'Tốt':avg>=2.8?'Đạt':avg>=2.0?'Cần cải thiện':'Yếu';
+  return {...e,scores,avg,rank,evalDate:'T3/2025'};
+});
+
+// Training docs
+const TRAINING_DOCS = [
+  {id:'SIT-001',title:'Quy trình vận hành ca — Trưởng ca',role:'Trưởng ca',type:'SOP',icon:'📋',level:'SL',url:'#'},
+  {id:'SIT-002',title:'Hướng dẫn xử lý sự cố Fnet',role:'Trưởng ca',type:'SOP',icon:'🖥️',level:'SL',url:'#'},
+  {id:'SIT-003',title:'Kiểm kê & quản lý FnB cuối ca',role:'Trưởng ca',type:'Checklist',icon:'✅',level:'SL',url:'#'},
+  {id:'SIT-004',title:'Quy trình phục vụ khách hàng',role:'Nhân viên',type:'SOP',icon:'👥',level:'SM',url:'#'},
+  {id:'SIT-005',title:'An toàn PCCC & Sơ cứu',role:'Tất cả',type:'Bắt buộc',icon:'🔥',level:'ALL',url:'#'},
+  {id:'SIT-006',title:'Vận hành Mart & kiểm kho',role:'Nhân viên',type:'SOP',icon:'🛒',level:'SM',url:'#'},
+  {id:'SIT-007',title:'Hướng dẫn xử lý khiếu nại KH',role:'Trưởng ca',type:'SOP',icon:'💬',level:'SL',url:'#'},
+  {id:'SIT-008',title:'Báo cáo & bàn giao ca',role:'Trưởng ca',type:'Checklist',icon:'📊',level:'SL',url:'#'},
+  {id:'SIT-009',title:'Onboarding nhân viên mới',role:'Cửa hàng trưởng',type:'Training',icon:'🎓',level:'CHR',url:'#'},
+  {id:'SIT-010',title:'Quản lý đội nhóm & xếp ca',role:'Cửa hàng trưởng',type:'SOP',icon:'📅',level:'CHR',url:'#'},
+  {id:'SIT-011',title:'Vệ sinh & tiêu chuẩn cơ sở',role:'Tất cả',type:'Bắt buộc',icon:'🧹',level:'ALL',url:'#'},
+  {id:'SIT-012',title:'Sử dụng phần mềm quản lý',role:'Tất cả',type:'Training',icon:'💻',level:'ALL',url:'#'},
+];
+
+// ─── STATE ──────────────────────────────────────────────────
+let period='week', section='overview', compFilter='all', trainingFilter='all';
+
+// ─── UTILS ──────────────────────────────────────────────────
+function fmt(n){return Math.round(n).toLocaleString('vi-VN');}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function today(){const d=new Date();return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
+function rankColor(r){return r==='Xuất sắc'?'var(--green)':r==='Tốt'?'var(--blue)':r==='Đạt'?'var(--amber)':r==='Cần cải thiện'?'var(--red)':'var(--muted)';}
+function scoreColor(s){return s>=4?'var(--green)':s>=3?'var(--blue)':s>=2?'var(--amber)':'var(--red)';}
+
+// ─── MAIN RENDER ────────────────────────────────────────────
+function renderAll(){
+  document.getElementById('dateLabel').textContent=`Cập nhật: ${today()} — ${period==='week'?'Tuần này':'Tháng này'}`;
+  ['overview','turnover','competency','training'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display=s===section?'block':'none';
+  });
+  if(section==='overview') renderOverview();
+  else if(section==='turnover') renderTurnover();
+  else if(section==='competency') renderCompetency();
+  else renderTraining();
+}
+
+// ─── OVERVIEW ───────────────────────────────────────────────
+function renderOverview(){
+  const totalActual=BRANCHES.reduce((a,b)=>{const hc=HC_ACTUAL[b];return a+hc.chr+hc.sl+hc.nv;},0);
+  const totalTarget=BRANCHES.reduce((a,b)=>a+HC_TARGET[b].total,0);
+  const deficit=totalTarget-totalActual;
+  const monthlyQuits=TV_WEEKLY.reduce((a,v)=>a+v,0);
+  const tvRate=Math.round(monthlyQuits/totalActual*100);
+  const avgAbsence=1.8;
+
+  renderKPIs([
+    {label:'Tổng nhân sự',val:String(totalActual),sub:`Định biên: ${totalTarget}`,pct:pct(totalActual,totalTarget),color:'purple'},
+    {label:'Thiếu so định biên',val:String(deficit),sub:'Cần tuyển dụng',pct:null,color:deficit>5?'red':deficit>2?'amber':'green'},
+    {label:'Tỷ lệ biến động',val:tvRate+'%',sub:`${monthlyQuits} người nghỉ/tháng`,pct:null,color:tvRate>10?'red':tvRate>5?'amber':'green'},
+    {label:'TB nghỉ/người',val:avgAbsence+'N',sub:'Ngày nghỉ TB tháng',pct:null,color:'blue'},
+    {label:'Cơ sở thiếu ca',val:'2',sub:'TQ Hoàn, LL Quân',pct:null,color:'amber'},
+  ],'kpiGrid');
+
+  document.getElementById('hcBadge').textContent=`${totalActual}/${totalTarget} nhân sự`;
+
+  document.getElementById('hcBody').innerHTML=BRANCHES.map(b=>{
+    const a=HC_ACTUAL[b],t=HC_TARGET[b];
+    const total=a.chr+a.sl+a.nv;
+    const diff=total-t.total;
+    const diffStr=(diff>=0?'+':'')+diff;
+    const diffCls=diff>=0?'hc-ok':diff>=-2?'hc-warn':'hc-low';
+    const ss=SHIFT_STATUS[b];
+    const ssCls=ss==='Đủ ca'?'badge-up':ss.includes('1')?'badge-warn':'badge-down';
+    return `<tr>
+      <td><div class="b-name">
+        <span class="status-dot" style="background:${diff>=0?'var(--green)':diff>=-2?'var(--amber)':'var(--red)'}"></span>
+        ${b}</div></td>
+      <td>${a.chr}/${t.chr}</td>
+      <td>${a.sl}/${t.sl}</td>
+      <td>${a.nv}/${t.nv}</td>
+      <td class="hc-num">${total}</td>
+      <td style="color:var(--muted)">${t.total}</td>
+      <td class="${diffCls}" style="font-family:var(--mono);font-weight:600">${diffStr}</td>
+      <td><span class="badge ${ssCls}" style="font-size:10px">${ss}</span></td>
+    </tr>`;
+  }).join('');
+
+  renderRoleDonut();
+  renderAlerts();
+}
+
+function renderKPIs(cards, targetId='kpiGrid'){
+  document.getElementById(targetId).innerHTML=cards.map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value${String(c.val).length>6?' sm':''}">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      ${c.pct!==null?`<div class="kpi-progress"><div class="kpi-bar ${c.color}" style="width:${Math.min(c.pct,100)}%"></div></div>`:''}
+    </div>`).join('');
+}
+
+function renderRoleDonut(){
+  const totChr=BRANCHES.reduce((a,b)=>a+HC_ACTUAL[b].chr,0);
+  const totSl =BRANCHES.reduce((a,b)=>a+HC_ACTUAL[b].sl,0);
+  const totNv =BRANCHES.reduce((a,b)=>a+HC_ACTUAL[b].nv,0);
+  const total=totChr+totSl+totNv;
+  const data=[
+    {label:'Cửa hàng trưởng',val:totChr,color:'#3fb950'},
+    {label:'Trưởng ca',val:totSl,color:'#bc8cff'},
+    {label:'Nhân viên',val:totNv,color:'#388bfd'},
+  ];
+  const svg=document.getElementById('roleChart');
+  const cx=100,cy=85,r=65,ri=42;
+  let startAngle=-Math.PI/2;
+  let paths='';
+  data.forEach(d=>{
+    const angle=(d.val/total)*2*Math.PI;
+    const endAngle=startAngle+angle;
+    const x1=cx+r*Math.cos(startAngle),y1=cy+r*Math.sin(startAngle);
+    const x2=cx+r*Math.cos(endAngle),y2=cy+r*Math.sin(endAngle);
+    const ix1=cx+ri*Math.cos(startAngle),iy1=cy+ri*Math.sin(startAngle);
+    const ix2=cx+ri*Math.cos(endAngle),iy2=cy+ri*Math.sin(endAngle);
+    const large=angle>Math.PI?1:0;
+    paths+=`<path d="M ${ix1} ${iy1} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ri} ${ri} 0 ${large} 0 ${ix1} ${iy1} Z" fill="${d.color}" opacity="0.85"/>`;
+    startAngle=endAngle;
+  });
+  // Center text
+  const legend=data.map((d,i)=>`
+    <rect x="215" y="${28+i*30}" width="10" height="10" rx="2" fill="${d.color}"/>
+    <text x="230" y="${38+i*30}" fill="#8b949e" font-size="11" font-family="Be Vietnam Pro">${d.label}: ${d.val}</text>`).join('');
+  svg.innerHTML=paths
+    +`<circle cx="${cx}" cy="${cy}" r="${ri-2}" fill="var(--bg2)"/>`
+    +`<text x="${cx}" y="${cy-8}" text-anchor="middle" fill="var(--text)" font-size="20" font-weight="700" font-family="JetBrains Mono">${total}</text>`
+    +`<text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#8b949e" font-size="11" font-family="Be Vietnam Pro">nhân sự</text>`
+    +legend;
+}
+
+function renderAlerts(){
+  const alerts=[];
+  BRANCHES.forEach(b=>{
+    const a=HC_ACTUAL[b],t=HC_TARGET[b];
+    const diff=(a.chr+a.sl+a.nv)-t.total;
+    if(diff<=-3) alerts.push({type:'danger',icon:'⚠',title:`${b} — Thiếu ${Math.abs(diff)} người`,desc:`Định biên ${t.total}, thực tế ${a.chr+a.sl+a.nv}. Ảnh hưởng nghiêm trọng đến vận hành.`,time:'Headcount'});
+    else if(diff<0) alerts.push({type:'warn',icon:'○',title:`${b} — Thiếu ${Math.abs(diff)} người`,desc:`Cần tuyển bổ sung để đảm bảo đủ ca.`,time:'Headcount'});
+    const ss=SHIFT_STATUS[b];
+    if(ss!=='Đủ ca') alerts.push({type:'warn',icon:'📅',title:`${b} — ${ss}`,desc:`Cần điều phối nhân sự từ cơ sở khác hoặc tăng ca.`,time:'Ca làm việc'});
+  });
+  const tvRate=Math.round(TV_WEEKLY.reduce((a,v)=>a+v,0)/BRANCHES.reduce((a,b)=>{const hc=HC_ACTUAL[b];return a+hc.chr+hc.sl+hc.nv;},0)*100);
+  if(tvRate>10) alerts.push({type:'danger',icon:'↑',title:`Tỷ lệ nghỉ việc ${tvRate}% — Cao`,desc:'Vượt ngưỡng 10%. Cần xem xét chính sách lương, điều kiện làm việc.',time:'Biến động'});
+  alerts.push({type:'info',icon:'i',title:'Định kỳ đánh giá năng lực',desc:'Cần cập nhật kết quả đánh giá 360° cho Q2/2025.',time:'Năng lực'});
+
+  const wc=alerts.filter(a=>a.type!=='info'&&a.type!=='ok').length;
+  document.getElementById('alertBadge').textContent=`${wc} cảnh báo`;
+  document.getElementById('alertBadge').className=`badge badge-${alerts.some(a=>a.type==='danger')?'down':wc>0?'warn':'up'}`;
+  document.getElementById('alertPanel').innerHTML=alerts.slice(0,6).map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div>${a.time?`<div class="alert-time">${a.time}</div>`:''}</div>
+    </div>`).join('');
+}
+
+// ─── TURNOVER ───────────────────────────────────────────────
+function renderTurnover(){
+  const totalQuits=TV_WEEKLY.reduce((a,v)=>a+v,0);
+  const totalHC=BRANCHES.reduce((a,b)=>{const hc=HC_ACTUAL[b];return a+hc.chr+hc.sl+hc.nv;},0);
+  const tvRate=Math.round(totalQuits/totalHC*100);
+  const avgPerWeek=Math.round(totalQuits/TV_WEEKLY.length*10)/10;
+
+  renderKPIs([
+    {label:'Tổng nghỉ việc',val:String(totalQuits),sub:period==='week'?'8 tuần gần nhất':'Tháng này',pct:null,color:'amber'},
+    {label:'TB / tuần',val:String(avgPerWeek),sub:'Người nghỉ mỗi tuần',pct:null,color:'amber'},
+    {label:'Tỷ lệ biến động',val:tvRate+'%',sub:'/ tổng headcount',pct:null,color:tvRate>10?'red':tvRate>5?'amber':'green'},
+    {label:'Cơ sở cao nhất',val:'TQ Hoàn',sub:'5 người nghỉ trong kỳ',pct:null,color:'red'},
+  ],'tvKpiGrid');
+
+  document.getElementById('tvBadge').textContent=`${tvRate}% biến động`;
+  document.getElementById('tvBadge').className=`badge badge-${tvRate>10?'down':tvRate>5?'warn':'up'}`;
+
+  // Turnover trend chart
+  const svg=document.getElementById('tvChart');
+  const W=320,H=180,pl=10,pr=10,pt=20,pb=30;
+  const iW=W-pl-pr,iH=H-pt-pb;
+  const maxV=Math.max(...TV_WEEKLY)+1;
+  const sy=v=>pt+iH-((v/maxV)*iH);
+  const sx=i=>pl+(i/(TV_WEEKLY.length-1))*iW;
+  const pts=TV_WEEKLY.map((v,i)=>`${sx(i)},${sy(v)}`).join(' ');
+  const areaBot=`${sx(TV_WEEKLY.length-1)},${pt+iH} ${sx(0)},${pt+iH}`;
+  svg.innerHTML=`
+    <defs><linearGradient id="tvg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--amber)" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="var(--amber)" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${[0,Math.round(maxV/2),maxV].map(v=>{const y=sy(v);return `<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <text x="${pl}" y="${y-3}" fill="#484f58" font-size="9" font-family="JetBrains Mono">${v}</text>`;}).join('')}
+    <polygon points="${pts} ${areaBot}" fill="url(#tvg)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${TV_WEEKLY.map((v,i)=>`
+      <circle cx="${sx(i)}" cy="${sy(v)}" r="4" fill="var(--amber)" stroke="var(--bg2)" stroke-width="2"/>
+      <text x="${sx(i)}" y="${H-6}" text-anchor="middle" fill="#484f58" font-size="9" font-family="Be Vietnam Pro">T${i+1}</text>
+    `).join('')}`;
+
+  // Branch bars
+  const maxTV=Math.max(...Object.values(TV_BY_BRANCH));
+  document.getElementById('tvBranchBars').innerHTML=Object.entries(TV_BY_BRANCH)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([b,v])=>{
+      const hc=HC_ACTUAL[b];const total=hc.chr+hc.sl+hc.nv;
+      const r=Math.round(v/total*100);
+      const col=r>15?'var(--red)':r>8?'var(--amber)':'var(--green)';
+      return `<div class="tv-row">
+        <div class="tv-label">${b}</div>
+        <div class="tv-bar-bg"><div class="tv-bar-fill" style="width:${Math.round(v/maxTV*100)}%;background:${col}"></div></div>
+        <div class="tv-val">${v} ng</div>
+        <div class="tv-badge"><span class="badge" style="background:${col}22;color:${col};font-size:10px">${r}%</span></div>
+      </div>`;
+    }).join('');
+
+  // Reason bars
+  const maxR=TV_REASONS[0].count;
+  document.getElementById('reasonBars').innerHTML=TV_REASONS.map(r=>`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-size:12px;font-weight:500;width:160px;flex-shrink:0">${r.reason}</div>
+      <div style="flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden">
+        <div style="height:100%;border-radius:4px;background:var(--purple);width:${Math.round(r.count/maxR*100)}%;transition:width .6s"></div>
+      </div>
+      <div style="font-size:12px;font-family:var(--mono);color:var(--muted);width:30px;text-align:right">${r.count}</div>
+    </div>`).join('');
+}
+
+// ─── COMPETENCY ─────────────────────────────────────────────
+function renderCompetency(){
+  const branches=['all',...BRANCHES];
+  document.getElementById('compFilterRow').innerHTML=branches.map(b=>`
+    <div class="stab${compFilter===b?' active':''}" style="padding:5px 12px;font-size:12px" onclick="compFilter='${b}';renderCompetency()">${b==='all'?'Tất cả':b}</div>`).join('');
+
+  const filtered=compFilter==='all'?EMPLOYEES:EMPLOYEES.filter(e=>e.branch===compFilter);
+
+  document.getElementById('compList').innerHTML=filtered.map(e=>`
+    <div class="comp-card" onclick="openStaffModal(${e.id})">
+      <div class="comp-card-header">
+        <div>
+          <div class="comp-name">${e.name}</div>
+          <div class="comp-meta">${e.role} · ${e.branch} · Đánh giá ${e.evalDate}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:${rankColor(e.rank)}">${e.avg}</div>
+          <div style="font-size:10px;font-weight:600;color:${rankColor(e.rank)}">${e.rank}</div>
+        </div>
+      </div>
+      <div class="comp-bars">
+        ${COMP_GROUPS.slice(0,4).map((g,i)=>`
+          <div class="comp-row">
+            <div class="comp-label">${g}</div>
+            <div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${e.scores[i]/5*100}%;background:${scoreColor(e.scores[i])}"></div></div>
+            <div class="comp-score">${e.scores[i]}</div>
+          </div>`).join('')}
+      </div>
+      <div class="comp-avg">
+        <div class="comp-avg-label">Điểm TB — ${COMP_GROUPS.length} nhóm năng lực</div>
+        <div class="comp-avg-val" style="color:${rankColor(e.rank)}">${e.avg} / 5.0</div>
+      </div>
+    </div>`).join('');
+
+  renderRadar(filtered);
+  renderRankDist(filtered);
+}
+
+function renderRadar(emps){
+  const svg=document.getElementById('radarChart');
+  const cx=120,cy=110,r=80,n=COMP_GROUPS.length;
+  const avgScores=COMP_GROUPS.map((_,i)=>emps.reduce((a,e)=>a+e.scores[i],0)/(emps.length||1));
+
+  const angles=COMP_GROUPS.map((_,i)=>(-Math.PI/2)+(2*Math.PI*i/n));
+  const gridLines=[1,2,3,4,5].map(level=>{
+    const pts=angles.map(a=>`${cx+r*(level/5)*Math.cos(a)},${cy+r*(level/5)*Math.sin(a)}`).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+  }).join('');
+  const axisLines=angles.map(a=>`<line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`).join('');
+  const dataPts=angles.map((a,i)=>`${cx+r*(avgScores[i]/5)*Math.cos(a)},${cy+r*(avgScores[i]/5)*Math.sin(a)}`).join(' ');
+  const labels=angles.map((a,i)=>{
+    const lx=cx+(r+16)*Math.cos(a);const ly=cy+(r+16)*Math.sin(a);
+    const anchor=Math.abs(Math.cos(a))<0.1?'middle':Math.cos(a)>0?'start':'end';
+    return `<text x="${lx}" y="${ly}" text-anchor="${anchor}" fill="#484f58" font-size="8.5" font-family="Be Vietnam Pro" dominant-baseline="central">${COMP_GROUPS[i].split('&')[0].trim().slice(0,12)}</text>`;
+  }).join('');
+  svg.innerHTML=gridLines+axisLines
+    +`<polygon points="${dataPts}" fill="rgba(188,140,255,0.2)" stroke="var(--purple)" stroke-width="2"/>`
+    +`${angles.map((a,i)=>`<circle cx="${cx+r*(avgScores[i]/5)*Math.cos(a)}" cy="${cy+r*(avgScores[i]/5)*Math.sin(a)}" r="3" fill="var(--purple)"/>`).join('')}`
+    +labels;
+}
+
+function renderRankDist(emps){
+  const ranks=['Xuất sắc','Tốt','Đạt','Cần cải thiện','Yếu'];
+  const counts=ranks.map(r=>emps.filter(e=>e.rank===r).length);
+  const max=Math.max(...counts)||1;
+  document.getElementById('rankDist').innerHTML=ranks.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-size:11px;font-weight:600;width:110px;flex-shrink:0;color:${rankColor(r)}">${r}</div>
+      <div style="flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">
+        <div style="height:100%;border-radius:3px;background:${rankColor(r)};width:${Math.round(counts[i]/max*100)}%;transition:width .6s"></div>
+      </div>
+      <div style="font-size:12px;font-family:var(--mono);color:var(--muted);width:24px;text-align:right">${counts[i]}</div>
+    </div>`).join('');
+}
+
+// ─── TRAINING ───────────────────────────────────────────────
+function renderTraining(){
+  const filters=['all','CHR','SL','SM','ALL'];
+  const labels={'all':'Tất cả','CHR':'Cửa hàng trưởng','SL':'Trưởng ca','SM':'Nhân viên','ALL':'Bắt buộc'};
+  document.getElementById('trainingFilterRow').innerHTML=filters.map(f=>`
+    <div class="stab${trainingFilter===f?' active':''}" style="padding:5px 12px;font-size:12px"
+      onclick="trainingFilter='${f}';renderTraining()">${labels[f]}</div>`).join('');
+
+  const typeColor={'SOP':'var(--blue)','Checklist':'var(--green)','Bắt buộc':'var(--red)','Training':'var(--purple)'};
+  const typeBg={'SOP':'var(--blue-bg)','Checklist':'var(--green-bg)','Bắt buộc':'var(--red-bg)','Training':'var(--purple-bg)'};
+  const roleColor={'CHR':'var(--green)','SL':'var(--purple)','SM':'var(--blue)','ALL':'var(--amber)'};
+  const roleBg={'CHR':'var(--green-bg)','SL':'var(--purple-bg)','SM':'var(--blue-bg)','ALL':'var(--amber-bg)'};
+
+  const filtered=trainingFilter==='all'?TRAINING_DOCS:TRAINING_DOCS.filter(d=>d.level===trainingFilter);
+
+  document.getElementById('trainingList').innerHTML=filtered.map(d=>`
+    <div class="training-card" onclick="openDoc('${d.id}','${d.title}')">
+      <div class="training-icon" style="background:${typeBg[d.type]||'var(--bg4)'}">
+        ${d.icon}
+      </div>
+      <div class="training-info">
+        <div class="training-title">${d.title}</div>
+        <div class="training-meta">${d.id} · ${d.role} · Loại: ${d.type}</div>
+      </div>
+      <span class="training-role" style="background:${roleBg[d.level]};color:${roleColor[d.level]}">${d.level}</span>
+      <span style="color:var(--dim);font-size:14px">›</span>
+    </div>`).join('');
+}
+
+// ─── MODAL ──────────────────────────────────────────────────
+function openStaffModal(id){
+  const e=EMPLOYEES.find(x=>x.id===id);if(!e)return;
+  document.getElementById('modalName').textContent=e.name;
+  document.getElementById('modalSub').textContent=`${e.role} · ${e.branch} · Đánh giá ${e.evalDate}`;
+  document.getElementById('modalBody').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:28px;font-weight:700;font-family:var(--mono);color:${rankColor(e.rank)}">${e.avg}<span style="font-size:14px;color:var(--muted)"> / 5.0</span></div>
+        <div style="font-size:13px;font-weight:600;color:${rankColor(e.rank)};margin-top:2px">${e.rank}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;max-width:200px;justify-content:flex-end">
+        <span class="role-pill role-${e.level.toLowerCase()}">${e.role}</span>
+        <span class="badge badge-purple" style="font-size:10px">${e.branch}</span>
+      </div>
+    </div>
+    <div class="section-label" style="margin-bottom:10px">Chi tiết 10 nhóm năng lực</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${COMP_GROUPS.map((g,i)=>`
+        <div class="comp-row">
+          <div class="comp-label" style="width:150px;font-size:12px">${g}</div>
+          <div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${e.scores[i]/5*100}%;background:${scoreColor(e.scores[i])}"></div></div>
+          <div style="font-size:12px;font-family:var(--mono);width:28px;text-align:right;color:${scoreColor(e.scores[i])}">${e.scores[i]}</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div class="section-label" style="margin-bottom:8px">Tài liệu đào tạo được chỉ định</div>
+      ${TRAINING_DOCS.filter(d=>d.level===e.level||d.level==='ALL').slice(0,4).map(d=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:15px">${d.icon}</span>
+          <div style="flex:1"><div style="font-size:12px;font-weight:500">${d.title}</div><div style="font-size:10px;color:var(--muted)">${d.id}</div></div>
+          <span style="font-size:13px;color:var(--dim)">›</span>
+        </div>`).join('')}
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function openDoc(id,title){
+  alert(`Mở tài liệu ${id}: ${title}\n\n(Sẽ liên kết đến Wiki nội bộ khi deploy)`);
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function closeIfOutside(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+// ─── INTERACTIONS ────────────────────────────────────────────
+function setPeriod(p,el){period=p;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAll();}
+function setSection(s,el){section=s;document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderAll();}
+
+// ─── CLOCK ──────────────────────────────────────────────────
+setInterval(()=>{const n=new Date();document.getElementById('clock').textContent=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;},1000);
+
+
+// ─── INIT ───────────────────────────────────────────────────
+renderAll();
+OEG.init(async (user) => {
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  if (nameEl) nameEl.textContent = user.name || user.email;
+  if (roleEl) roleEl.textContent = user.role || 'User';
+});
+
+</script>
+  <script src="oeg-shell.js" charset="UTF-8"></script>
+</body>
+</html>
+
+

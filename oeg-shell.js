@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const modules = [
     { file: 'OEG_M1_Dashboard.html', code: 'M1', icon: '\uD83D\uDCCA', label: 'T\u1ED5ng quan' },
     { file: 'OEG_M2_Fnet.html', code: 'M2', icon: '\uD83D\uDDA5\uFE0F', label: 'Fnet' },
@@ -8,6 +8,9 @@
     { file: 'OEG_M6_PL.html', code: 'M6', icon: '\uD83D\uDCB0', label: 'P&L' }
   ];
   const utilityIcons = ['\u270D\uFE0F', '\uD83D\uDCDA', '\uD83C\uDFAF'];
+  const toolPages = [
+    { file: 'OEG_Wiki_SOP.html', icon: '\uD83D\uDCDA', label: 'Wiki / SOP' }
+  ];
   const currentFile = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
   function cleanText(text) {
@@ -65,7 +68,14 @@
       const module = modules.find(function (mod) {
         return text.includes(mod.code) || ((item.getAttribute('href') || '').toLowerCase() === mod.file.toLowerCase());
       });
-      const icon = module ? module.icon : utilityIcons[index % utilityIcons.length];
+      const toolPage = toolPages.find(function (tool) {
+        return text.toLowerCase().includes(tool.label.toLowerCase()) || ((item.getAttribute('href') || '').toLowerCase() === tool.file.toLowerCase());
+      });
+      if (toolPage && !item.getAttribute('href')) {
+        item.setAttribute('role', 'link');
+        item.addEventListener('click', function () { window.location.href = toolPage.file; });
+      }
+      const icon = module ? module.icon : toolPage ? toolPage.icon : utilityIcons[index % utilityIcons.length];
       if (!item.querySelector('.nav-icon')) {
         const iconEl = document.createElement('span');
         iconEl.className = 'nav-icon';
@@ -77,6 +87,7 @@
       item.dataset.title = text;
       item.title = text;
       if (module && module.file.toLowerCase() === currentFile) item.classList.add('active');
+      if (toolPage && toolPage.file.toLowerCase() === currentFile) item.classList.add('active');
     });
 
     if (!document.querySelector('.oeg-sidebar-backdrop')) {

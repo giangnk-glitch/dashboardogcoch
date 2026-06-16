@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OEG Cyber Hub — Chain Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"/>
+  <link rel="stylesheet" href="oeg-design-system.css"/>
+  <style>
+    body.oeg-home {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 9% 0%, rgba(232,50,74,.20), transparent 31rem),
+        radial-gradient(circle at 91% 12%, rgba(56,139,253,.14), transparent 30rem),
+        #070c13;
+    }
+    body.oeg-home::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(148,163,184,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.045) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, #000, transparent 85%);
+    }
+    .home-wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 34px;
+    }
+    .home-topbar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 42px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: .4px;
+      background: linear-gradient(135deg, #e8324a, #ff7a7a);
+      box-shadow: 0 18px 40px rgba(232,50,74,.28);
+    }
+    .brand h1 {
+      font-size: 15px;
+      line-height: 1.2;
+      margin: 0;
+    }
+    .brand p {
+      margin: 3px 0 0;
+      font-size: 11px;
+      color: var(--oeg-muted);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .live-chip, .home-clock {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--oeg-border);
+      border-radius: 999px;
+      color: var(--oeg-muted);
+      background: rgba(255,255,255,.04);
+      font-size: 12px;
+      font-family: var(--oeg-mono);
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--oeg-green);
+      box-shadow: 0 0 12px var(--oeg-green);
+      animation: oegPulse 1.8s infinite;
+    }
+    .hero {
+      max-width: 760px;
+      margin-bottom: 34px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #ff6b7d;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: .96;
+      letter-spacing: -.03em;
+      font-weight: 800;
+    }
+    .hero h2 span { color: #ff405d; }
+    .hero p {
+      margin: 18px 0 0;
+      max-width: 610px;
+      color: #9dadc2;
+      font-size: 15px;
+      line-height: 1.75;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 40px;
+    }
+    .stat {
+      min-height: 74px;
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--oeg-border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025)), #131c2a;
+      box-shadow: 0 16px 42px rgba(0,0,0,.22);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--ac), transparent);
+    }
+    .stat-val {
+      font-family: var(--oeg-mono);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--ac);
+    }
+    .stat-lbl {
+      margin-top: 5px;
+      color: var(--oeg-muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 14px;
+    }
+    .section-head h3 {
+      margin: 0;
+      color: #9dadc2;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .section-head a {
+      color: var(--oeg-muted);
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .module-card {
+      min-height: 218px;
+      display: flex;
+      flex-direction: column;
+      color: inherit;
+      text-decoration: none;
+      border-radius: 16px;
+      border: 1px solid var(--oeg-border);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.018)),
+        #121b29;
+      box-shadow: 0 18px 50px rgba(0,0,0,.24);
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .module-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 3px;
+      background: linear-gradient(90deg, var(--ac), transparent 65%);
+      opacity: .95;
+    }
+    .module-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -68px;
+      top: -70px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--ac) 30%, transparent);
+      filter: blur(4px);
+      opacity: .35;
+    }
+    .module-card:hover {
+      transform: translateY(-5px);
+      border-color: color-mix(in srgb, var(--ac) 55%, white 10%);
+      box-shadow: 0 26px 70px rgba(0,0,0,.32);
+    }
+    .module-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .module-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--oeg-border);
+    }
+    .module-arrow {
+      color: var(--oeg-muted);
+      font-size: 18px;
+    }
+    .module-code {
+      position: relative;
+      z-index: 1;
+      font-family: var(--oeg-mono);
+      color: var(--oeg-dim);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .module-title {
+      position: relative;
+      z-index: 1;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+    .module-desc {
+      position: relative;
+      z-index: 1;
+      color: #9dadc2;
+      font-size: 13px;
+      line-height: 1.62;
+      margin-bottom: 16px;
+    }
+    .tags {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+    .tag {
+      padding: 4px 9px;
+      border: 1px solid var(--oeg-border);
+      border-radius: 999px;
+      color: var(--oeg-muted);
+      background: rgba(255,255,255,.045);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .branches {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .branch {
+      border: 1px solid var(--oeg-border);
+      border-radius: 12px;
+      background: rgba(19,28,42,.88);
+      padding: 14px;
+    }
+    .branch-name {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .branch-kpi {
+      color: var(--oeg-muted);
+      font-family: var(--oeg-mono);
+      font-size: 11px;
+    }
+    .home-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--oeg-border);
+      color: var(--oeg-muted);
+      font-size: 12px;
+    }
+    @media (max-width: 980px) {
+      .stats, .modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .branches { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .home-wrap { width: min(100% - 28px, 1180px); padding-top: 18px; }
+      .home-topbar, .home-footer { align-items: flex-start; flex-direction: column; }
+      .top-actions { width: 100%; justify-content: space-between; }
+      .stats, .modules, .branches { grid-template-columns: 1fr; }
+      .module-card { min-height: 0; }
+    }
+  </style>
+</head>
+<body class="oeg-home">
+  <div class="home-wrap">
+    <header class="home-topbar">
+      <div class="brand">
+        <div class="brand-mark">OCH</div>
+        <div>
+          <h1>OEG Cyber Hub</h1>
+          <p>Chain Dashboard System · Hà Nội</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="live-chip"><span class="live-dot"></span>Live Sheets</div>
+        <div class="home-clock" id="t">--:--:--</div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Command Center</div>
+      <h2>Dashboard vận hành<br/><span>6 cơ sở · Hà Nội</span></h2>
+      <p>Theo dõi doanh thu, nhân sự, phòng máy và P&L toàn chuỗi OGC/OCH Cyber Hub. Dữ liệu đồng bộ từ Google Sheets, sẵn sàng cho vận hành hằng ngày.</p>
+    </section>
+
+    <section class="stats" aria-label="Chỉ số nhanh">
+      <div class="stat" style="--ac:#ff405d"><div class="stat-val">6</div><div class="stat-lbl">Cơ sở</div></div>
+      <div class="stat" style="--ac:#388bfd"><div class="stat-val">6.371B</div><div class="stat-lbl">KPI tháng (₫)</div></div>
+      <div class="stat" style="--ac:#3fb950"><div class="stat-val">T4/2026</div><div class="stat-lbl">Kỳ hiện tại</div></div>
+      <div class="stat" style="--ac:#d29922"><div class="stat-val">3</div><div class="stat-lbl">Kênh DT</div></div>
+    </section>
+
+    <div class="section-head">
+      <h3>Báo cáo & Phân tích</h3>
+      <a href="OEG_M1_Dashboard.html">Mở dashboard tổng quan →</a>
+    </div>
+    <section class="modules" aria-label="Danh sách module">
+      <a class="module-card" style="--ac:#e8324a" href="OEG_M1_Dashboard.html">
+        <div class="module-top"><div class="module-icon">📊</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 1</div>
+        <div class="module-title">Tổng quan chuỗi</div>
+        <div class="module-desc">Doanh thu toàn chuỗi ngày / tuần / tháng, KPI completion từng cơ sở, xu hướng và xếp hạng.</div>
+        <div class="tags"><span class="tag">Doanh thu</span><span class="tag">KPI</span><span class="tag">Xu hướng</span></div>
+      </a>
+      <a class="module-card" style="--ac:#388bfd" href="OEG_M2_Fnet.html">
+        <div class="module-top"><div class="module-icon">🖥️</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 2</div>
+        <div class="module-title">Fnet — Gaming</div>
+        <div class="module-desc">Traffic, NRU, sessions, giờ chơi. Hiệu suất kênh gaming chính theo từng cơ sở.</div>
+        <div class="tags"><span class="tag">Traffic</span><span class="tag">NRU</span><span class="tag">Sessions</span></div>
+      </a>
+      <a class="module-card" style="--ac:#3fb950" href="OEG_M3_FnB_Mart.html">
+        <div class="module-top"><div class="module-icon">🍜</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 3</div>
+        <div class="module-title">FnB & Mart</div>
+        <div class="module-desc">Doanh thu ăn uống và bán lẻ. Orders, AOV, transactions theo cơ sở và theo ngày.</div>
+        <div class="tags"><span class="tag">FnB</span><span class="tag">Mart</span><span class="tag">AOV</span></div>
+      </a>
+      <a class="module-card" style="--ac:#d29922" href="OEG_M4_NhanSu.html">
+        <div class="module-top"><div class="module-icon">👥</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 4</div>
+        <div class="module-title">Nhân sự</div>
+        <div class="module-desc">Headcount, turnover, KPIs nhân sự. Biến động nhân lực CHT / SL / NV toàn chuỗi.</div>
+        <div class="tags"><span class="tag">Headcount</span><span class="tag">Turnover</span></div>
+      </a>
+      <a class="module-card" style="--ac:#a371f7" href="OEG_M5_PhongMay.html">
+        <div class="module-top"><div class="module-icon">⚙️</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 5</div>
+        <div class="module-title">Tình trạng phòng máy</div>
+        <div class="module-desc">Uptime, occupancy rate, máy hỏng, bảo trì. Dashboard vận hành theo ca từng cơ sở.</div>
+        <div class="tags"><span class="tag">Uptime</span><span class="tag">Occupancy</span></div>
+      </a>
+      <a class="module-card" style="--ac:#f0883e" href="OEG_M6_PL.html">
+        <div class="module-top"><div class="module-icon">💰</div><div class="module-arrow">↗</div></div>
+        <div class="module-code">MODULE 6</div>
+        <div class="module-title">P&L — Lãi lỗ</div>
+        <div class="module-desc">Doanh thu, chi phí, EBITDA theo tháng. Cơ cấu chi phí: lương, điện, vận hành, thuê.</div>
+        <div class="tags"><span class="tag">EBITDA</span><span class="tag">Chi phí</span><span class="tag">Margin</span></div>
+      </a>
+    </section>
+
+    <div class="section-head"><h3>6 Cơ sở · KPI T4/2026</h3></div>
+    <section class="branches" aria-label="KPI cơ sở">
+      <div class="branch"><div class="branch-name">🏟️ Stadium</div><div class="branch-kpi">1,542,910,043 ₫</div></div>
+      <div class="branch"><div class="branch-name">⚔️ Tây Sơn</div><div class="branch-kpi">976,401,008 ₫</div></div>
+      <div class="branch"><div class="branch-name">🎮 LL Quân</div><div class="branch-kpi">1,008,712,322 ₫</div></div>
+      <div class="branch"><div class="branch-name">🔥 Trần Vỹ</div><div class="branch-kpi">1,002,637,424 ₫</div></div>
+      <div class="branch"><div class="branch-name">💫 TQ Hoàn</div><div class="branch-kpi">957,096,000 ₫</div></div>
+      <div class="branch"><div class="branch-name">⚡ Chiến Thắng</div><div class="branch-kpi">883,612,080 ₫</div></div>
+    </section>
+
+    <footer class="home-footer">
+      <span>OEG Cyber Hub · Chain Dashboard v2.0 · 2026</span>
+      <span>Google Sheets Live · Operational Command Center</span>
+    </footer>
+  </div>
+  <script>
+    function tick() {
+      document.getElementById('t').textContent = new Date().toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+  <script src="oeg-shell.js" charset="UTF-8"></script>
+</body>
+</html>

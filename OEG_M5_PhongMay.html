@@ -1,0 +1,994 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OEG Cyber Hub — M5 Phòng máy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--bg4:#21262d;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e6edf3;--muted:#8b949e;--dim:#484f58;
+  --red:#F85149;--red-bg:rgba(248,81,73,0.12);
+  --green:#3fb950;--green-bg:rgba(63,185,80,0.12);
+  --amber:#d29922;--amber-bg:rgba(210,153,34,0.12);
+  --blue:#388bfd;--blue-bg:rgba(56,139,253,0.12);
+  --purple:#bc8cff;--purple-bg:rgba(188,140,255,0.12);
+  --teal:#39c5b0;--teal-bg:rgba(57,197,176,0.12);
+  --accent:#e8324a;
+  --pc-c:#39c5b0;
+  --font:'Be Vietnam Pro',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--r2:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s;}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.logo-text{font-size:13px;font-weight:600;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.nav{padding:12px 8px;flex:1;overflow-y:auto;}
+.nav-section{margin-bottom:20px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);padding:0 8px 6px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--teal-bg);color:var(--teal);}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0;}
+.nav-item.active .dot{background:var(--teal);}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;}
+.user-role{font-size:10px;color:var(--muted);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;min-width:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:18px;height:1.5px;background:var(--muted);border-radius:2px;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb span{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-primary{background:var(--teal);color:#0d1117;}
+.btn-primary:hover{background:#2aaд95;}
+
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-up{background:var(--green-bg);color:var(--green);}
+.badge-down{background:var(--red-bg);color:var(--red);}
+.badge-warn{background:var(--amber-bg);color:var(--amber);}
+.badge-teal{background:var(--teal-bg);color:var(--teal);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);}
+.badge-purple{background:var(--purple-bg);color:var(--purple);}
+
+.content{padding:24px;}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.pc-badge{background:var(--teal-bg);color:var(--teal);border:1px solid rgba(57,197,176,0.3);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.page-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* SECTION TABS */
+.section-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+.stab{padding:7px 16px;border-radius:var(--r2);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--muted);background:transparent;transition:all .15s;}
+.stab:hover{border-color:var(--teal);color:var(--teal);}
+.stab.active{background:var(--teal-bg);border-color:var(--teal);color:var(--teal);}
+
+/* BRANCH SELECTOR */
+.branch-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.branch-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--muted);background:transparent;transition:all .15s;white-space:nowrap;}
+.branch-chip:hover,.branch-chip.active{background:var(--teal-bg);border-color:var(--teal);color:var(--teal);}
+.all-chip.active{background:rgba(255,255,255,0.05);border-color:var(--border2);color:var(--text);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:border-color .2s;}
+.kpi-card:hover{border-color:var(--border2);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-card.teal::before{background:var(--teal);}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.amber::before{background:var(--amber);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.blue::before{background:var(--blue);}
+.kpi-card.purple::before{background:var(--purple);}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.kpi-value{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1;}
+.kpi-value.sm{font-size:17px;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+.kpi-progress{margin-top:10px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.kpi-bar{height:100%;border-radius:2px;transition:width .6s;}
+.kpi-bar.teal{background:var(--teal);}
+.kpi-bar.green{background:var(--green);}
+.kpi-bar.amber{background:var(--amber);}
+.kpi-bar.red{background:var(--red);}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-meta{font-size:11px;color:var(--muted);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.span2{grid-column:span 2;}
+.chart-svg{width:100%;overflow:visible;}
+
+/* MACHINE GRID — occupancy visual */
+.machine-grid{display:grid;gap:3px;margin-bottom:12px;}
+.m-cell{border-radius:3px;cursor:pointer;transition:opacity .15s;position:relative;}
+.m-cell:hover{opacity:.8;}
+.m-cell.ok{background:var(--teal);opacity:.75;}
+.m-cell.busy{background:var(--green);}
+.m-cell.broken{background:var(--red);}
+.m-cell.idle{background:var(--bg4);}
+.m-cell.maintenance{background:var(--amber);}
+
+/* MACHINE LEGEND */
+.m-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.m-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.m-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+/* MACHINE TABLE */
+.machine-table{width:100%;border-collapse:collapse;font-size:12px;}
+.machine-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.machine-table th:not(:first-child){text-align:right;}
+.machine-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.machine-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.machine-table tr:hover td{background:rgba(255,255,255,0.02);}
+.b-name-cell{font-weight:500;display:flex;align-items:center;gap:8px;}
+.s-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* STATUS PILL */
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;}
+.sp-ok{background:var(--teal-bg);color:var(--teal);}
+.sp-warn{background:var(--amber-bg);color:var(--amber);}
+.sp-danger{background:var(--red-bg);color:var(--red);}
+
+/* COMBO TABLE */
+.combo-table{width:100%;border-collapse:collapse;font-size:12px;}
+.combo-table th{font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase;letter-spacing:.5px;}
+.combo-table th:not(:first-child){text-align:right;}
+.combo-table td{padding:9px 8px;border-top:1px solid var(--border);}
+.combo-table td:not(:first-child){text-align:right;font-family:var(--mono);}
+.combo-table tr:hover td{background:rgba(255,255,255,0.02);}
+.combo-popular{background:rgba(57,197,176,0.08);}
+.hot-badge{background:var(--teal-bg);color:var(--teal);padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;}
+
+/* INCIDENT LOG */
+.incident-list{display:flex;flex-direction:column;gap:8px;}
+.incident-card{background:var(--bg3);border-radius:var(--r2);padding:11px 14px;border-left:3px solid;display:flex;gap:12px;align-items:flex-start;}
+.incident-card.high{border-color:var(--red);}
+.incident-card.med{border-color:var(--amber);}
+.incident-card.low{border-color:var(--teal);}
+.incident-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.incident-title{font-size:12px;font-weight:600;}
+.incident-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.incident-time{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* UPTIME CHART */
+.uptime-bar-row{display:flex;flex-direction:column;gap:8px;}
+.ut-row{display:flex;align-items:center;gap:10px;}
+.ut-label{font-size:12px;font-weight:500;width:90px;flex-shrink:0;}
+.ut-bar-bg{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.ut-fill{height:100%;border-radius:4px;transition:width .6s;}
+.ut-val{font-size:11px;font-family:var(--mono);color:var(--muted);width:42px;text-align:right;}
+
+/* CONFIG SPEC */
+.config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.config-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:12px;}
+.config-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.config-val{font-size:14px;font-weight:600;}
+.config-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* ALERT */
+.alert-panel{display:flex;flex-direction:column;gap:8px;}
+.alert-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r2);border-left:3px solid;background:var(--bg3);}
+.alert-card.danger{border-color:var(--red);}
+.alert-card.warn{border-color:var(--amber);}
+.alert-card.ok{border-color:var(--green);}
+.alert-card.info{border-color:var(--teal);}
+.alert-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.alert-title{font-size:12px;font-weight:600;}
+.alert-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.alert-time{font-size:10px;color:var(--dim);margin-top:3px;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;}
+.detail-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;animation:slideUp .2s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;border-radius:14px 14px 0 0;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.close-btn{width:28px;height:28px;border-radius:6px;background:var(--bg4);border:none;cursor:pointer;color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.close-btn:hover{background:var(--red-bg);color:var(--red);}
+.modal-body{padding:18px 22px 22px;}
+.spec-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.spec-row:last-child{border-bottom:none;}
+.spec-label{color:var(--muted);}
+.spec-val{font-weight:500;font-family:var(--mono);}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hamburger{display:flex;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .span2{grid-column:span 1;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .page-header{flex-direction:column;}
+  .topbar,.content{padding-left:16px;padding-right:16px;}
+}
+</style>
+  <script src="oeg-api.js"></script>
+  <link rel="stylesheet" href="oeg-design-system.css"/>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">OCH</div>
+      <div><div class="logo-text">OEG Cyber Hub</div><div class="logo-sub">Chain Dashboard</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Báo cáo</div>
+      <a href="OEG_M1_Dashboard.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M1 — Tổng quan</a>
+      <a href="OEG_M2_Fnet.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M2 — Fnet</a>
+      <a href="OEG_M3_FnB_Mart.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M3 — FnB &amp; Mart</a>
+      <a href="OEG_M4_NhanSu.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M4 — Nhân sự</a>
+      <a href="OEG_M5_PhongMay.html" class="nav-item active" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M5 — Phòng máy</a>
+      <a href="OEG_M6_PL.html" class="nav-item" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px"><span class="dot"></span>M6 — P&amp;L</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Hệ thống</div>
+      <div class="nav-item"><span class="dot"></span>Nhập liệu ngày</div>
+      <div class="nav-item"><span class="dot"></span>Wiki / SOP</div>
+      <div class="nav-item"><span class="dot"></span>Cài đặt KPI</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">AN</div>
+      <div><div class="user-name">Andrew</div><div class="user-role">Chain Director</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"><span></span><span></span><span></span></div>
+      <div class="breadcrumb">Dashboard / <span>M5 — Phòng máy</span></div>
+    </div>
+    <div class="topbar-right">
+      <span id="clock" style="font-size:12px;color:var(--muted);font-family:var(--mono)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="render()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Phòng máy <span class="pc-badge">PC</span></div>
+        <div class="page-meta" id="dateLabel"></div>
+      </div>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div class="section-tabs">
+      <div class="stab active" onclick="setSection('overview',this)">Tổng quan</div>
+      <div class="stab" onclick="setSection('uptime',this)">Uptime &amp; Lỗi</div>
+      <div class="stab" onclick="setSection('config',this)">Cấu hình &amp; Giá</div>
+      <div class="stab" onclick="setSection('combo',this)">Combo &amp; Dịch vụ</div>
+    </div>
+
+    <!-- BRANCH SELECTOR -->
+    <div class="branch-selector" id="branchSelector"></div>
+
+    <!-- ═══ SECTION OVERVIEW ═══ -->
+    <div id="sec-overview">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title" id="gridTitle">Sơ đồ trạng thái máy</div>
+              <div class="card-meta" id="gridMeta"></div>
+            </div>
+            <span class="badge badge-teal" id="gridBadge"></span>
+          </div>
+          <div id="machineGrid"></div>
+          <div class="m-legend">
+            <div class="m-leg-item"><div class="m-leg-dot" style="background:var(--green)"></div>Đang dùng</div>
+            <div class="m-leg-item"><div class="m-leg-dot" style="background:var(--teal);opacity:.75"></div>Trống</div>
+            <div class="m-leg-item"><div class="m-leg-dot" style="background:var(--red)"></div>Lỗi / Tắt</div>
+            <div class="m-leg-item"><div class="m-leg-dot" style="background:var(--amber)"></div>Bảo trì</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Cảnh báo phòng máy</div>
+            <span class="badge" id="alertBadge"></span>
+          </div>
+          <div class="alert-panel" id="alertPanel"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header">
+          <div class="card-title">Tổng hợp theo cơ sở</div>
+          <span class="badge badge-teal" id="tableBadge"></span>
+        </div>
+        <table class="machine-table" id="machineTable">
+          <thead><tr>
+            <th>Cơ sở</th>
+            <th>Tổng máy</th><th>Đang dùng</th><th>Trống</th><th>Lỗi</th><th>Bảo trì</th>
+            <th>Occupancy</th><th>Uptime</th><th>Trạng thái</th>
+          </tr></thead>
+          <tbody id="machineBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION UPTIME ═══ -->
+    <div id="sec-uptime" style="display:none">
+      <div class="kpi-grid" id="uptimeKpiGrid"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Uptime rate theo cơ sở</div>
+            <span class="badge badge-teal">7 ngày</span>
+          </div>
+          <div class="uptime-bar-row" id="uptimeBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Xu hướng máy lỗi — 7 ngày</div>
+            <span class="badge badge-warn" id="errorTrendBadge"></span>
+          </div>
+          <div style="height:160px">
+            <svg id="errorTrendChart" class="chart-svg" viewBox="0 0 300 150" preserveAspectRatio="none" style="height:160px"></svg>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Lịch sử sự cố gần nhất</div>
+          <span class="badge badge-warn" id="incidentBadge"></span>
+        </div>
+        <div class="incident-list" id="incidentList"></div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION CONFIG ═══ -->
+    <div id="sec-config" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="configBranchTabs"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="configCardTitle">Cấu hình máy — Stadium</div>
+            <span class="badge badge-teal" id="configBadge"></span>
+          </div>
+          <div class="config-grid" id="configGrid"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Bảng giá giờ chơi</div>
+            <span class="badge badge-blue" id="priceBadge">Hiện tại</span>
+          </div>
+          <div id="priceTable"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Lịch sử cập nhật cấu hình</div>
+          <span class="badge badge-blue">6 tháng gần nhất</span>
+        </div>
+        <div id="configHistory"></div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION COMBO ═══ -->
+    <div id="sec-combo" style="display:none">
+      <div class="kpi-grid" id="comboKpiGrid"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Danh sách combo &amp; gói giờ</div>
+            <span class="badge badge-teal" id="comboBadge"></span>
+          </div>
+          <table class="combo-table" id="comboTable">
+            <thead><tr>
+              <th>Tên combo</th><th>Giờ</th><th>Giá bán</th><th>Giá/giờ</th><th>Tiết kiệm</th><th>Trạng thái</th>
+            </tr></thead>
+            <tbody id="comboBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Combo phổ biến nhất</div>
+            <span class="badge badge-teal">Tuần này</span>
+          </div>
+          <div id="comboPopChart"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MACHINE DETAIL MODAL -->
+<div class="overlay" id="overlay" onclick="closeIfOutside(event)">
+  <div class="detail-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG DATA ─────────────────────────────────────────────
+const BRANCHES = ['Stadium','Tây Sơn','LL Quân','Trần Vỹ','TQ Hoàn','Chiến Thắng'];
+const DOW = ['CN','T2','T3','T4','T5','T6','T7'];
+
+const MACHINE_COUNTS = {
+  'Stadium':80,'Tây Sơn':65,'LL Quân':60,'Trần Vỹ':55,'TQ Hoàn':50,'Chiến Thắng':48
+};
+
+// Config per branch (specs)
+const BRANCH_CONFIG = {
+  'Stadium':    {cpu:'Intel Core i7-12700F',gpu:'RTX 4060 Ti 16GB',ram:'32GB DDR5',storage:'NVMe 1TB',monitor:'27" 165Hz IPS',os:'Windows 11 Pro',year:2023},
+  'Tây Sơn':   {cpu:'Intel Core i7-11700F',gpu:'RTX 3070 8GB',ram:'16GB DDR4',storage:'NVMe 512GB',monitor:'24" 144Hz',os:'Windows 11',year:2022},
+  'LL Quân':   {cpu:'AMD Ryzen 5 5600X',gpu:'RX 6700 XT 12GB',ram:'16GB DDR4',storage:'SSD 512GB',monitor:'24" 144Hz',os:'Windows 11',year:2022},
+  'Trần Vỹ':  {cpu:'Intel Core i5-10400F',gpu:'GTX 1660 Super 6GB',ram:'16GB DDR4',storage:'SSD 256GB',monitor:'24" 75Hz',os:'Windows 10',year:2021},
+  'TQ Hoàn':  {cpu:'Intel Core i5-10400F',gpu:'RX 580 8GB',ram:'8GB DDR4',storage:'HDD 1TB',monitor:'22" 60Hz',os:'Windows 10',year:2020},
+  'Chiến Thắng':{cpu:'AMD Ryzen 5 3600',gpu:'GTX 1650 4GB',ram:'16GB DDR4',storage:'SSD 256GB',monitor:'24" 75Hz',os:'Windows 10',year:2021},
+};
+
+// Hourly prices per branch (VND)
+const HOURLY_PRICE = {
+  'Stadium':   {regular:5000,peak:7000,vip:10000},
+  'Tây Sơn':  {regular:4500,peak:6000,vip:8000},
+  'LL Quân':  {regular:4000,peak:5500,vip:7000},
+  'Trần Vỹ': {regular:3500,peak:5000,vip:6500},
+  'TQ Hoàn': {regular:3000,peak:4500,vip:6000},
+  'Chiến Thắng':{regular:3000,peak:4500,vip:6000},
+};
+
+// Combo packages (chain-wide)
+const COMBOS = [
+  {name:'Gói 5 giờ',hours:5,price:22000,baseHour:5000,active:true,popular:false},
+  {name:'Gói 10 giờ',hours:10,price:40000,baseHour:5000,active:true,popular:true},
+  {name:'Gói 20 giờ',hours:20,price:75000,baseHour:5000,active:true,popular:false},
+  {name:'Gói Đêm (22h-6h)',hours:8,price:30000,baseHour:5000,active:true,popular:true},
+  {name:'Gói Tháng 60h',hours:60,price:200000,baseHour:5000,active:true,popular:false},
+  {name:'Gói VIP 10h',hours:10,price:90000,baseHour:10000,active:true,popular:false},
+  {name:'Gói Tuần 20h',hours:20,price:70000,baseHour:5000,active:false,popular:false},
+];
+
+// Incident types
+const INCIDENT_TYPES = [
+  {type:'Lỗi nguồn / PSU',severity:'high'},
+  {type:'Màn hình không lên',severity:'med'},
+  {type:'GPU quá nhiệt',severity:'high'},
+  {type:'Bàn phím / Chuột lỗi',severity:'low'},
+  {type:'Mất kết nối mạng',severity:'med'},
+  {type:'HDD / SSD bad sector',severity:'high'},
+  {type:'Lỗi phần mềm / virus',severity:'med'},
+  {type:'Tai nghe không hoạt động',severity:'low'},
+];
+
+// ─── STATE ───────────────────────────────────────────────────
+let section = 'overview';
+let activeBranch = 'all';
+let configBranch = 'Stadium';
+
+// ─── SEED RNG ────────────────────────────────────────────────
+let _s=77; function sr(){_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff;}
+function seed(n){_s=n;}
+
+// ─── DATA GENERATORS ─────────────────────────────────────────
+function genBranchMachines(branch) {
+  seed(BRANCHES.indexOf(branch)*41+7);
+  const total = MACHINE_COUNTS[branch];
+  const broken = Math.floor(total * (0.02 + sr()*0.06));   // 2-8% broken
+  const maintenance = Math.floor(total * (0.01 + sr()*0.02));
+  const available = total - broken - maintenance;
+  // occupancy 55-85% of available
+  const busy = Math.floor(available * (0.45 + sr()*0.40));
+  const idle = available - busy;
+  const occupancy = Math.round(busy/total*100);
+  const uptime    = Math.round((available)/total*100);
+  return {total, busy, idle, broken, maintenance, occupancy, uptime};
+}
+
+function getActiveData() {
+  if(activeBranch === 'all') {
+    const all = BRANCHES.map(b => genBranchMachines(b));
+    return all.reduce((acc,d) => {
+      Object.keys(d).forEach(k => acc[k] = (acc[k]||0) + d[k]);
+      return acc;
+    }, {});
+  }
+  return genBranchMachines(activeBranch);
+}
+
+function genDailyErrors(n=7) {
+  return Array.from({length:n},(_,i) => {
+    seed(200+i*13);
+    const total = activeBranch==='all'
+      ? BRANCHES.reduce((a,b)=>a+MACHINE_COUNTS[b],0)
+      : MACHINE_COUNTS[activeBranch]||60;
+    return { label:DOW[(new Date().getDay()-n+i+7)%7], errors: Math.round(total*(0.02+sr()*0.07)) };
+  });
+}
+
+function genIncidents() {
+  const incidents = [];
+  seed(333);
+  BRANCHES.forEach((b,bi) => {
+    const count = 1 + Math.floor(sr()*3);
+    for(let i=0;i<count;i++){
+      const t = INCIDENT_TYPES[Math.floor(sr()*INCIDENT_TYPES.length)];
+      const mId = 1+Math.floor(sr()*MACHINE_COUNTS[b]);
+      const hoursAgo = Math.floor(sr()*72);
+      incidents.push({branch:b, machine:`PC-${String(mId).padStart(3,'0')}`, ...t,
+        time: hoursAgo===0?'Vừa xong':hoursAgo<24?`${hoursAgo}h trước`:`${Math.floor(hoursAgo/24)}N trước`,
+        resolved: sr()>0.4});
+    }
+  });
+  return incidents.sort((a,b)=>a.severity==='high'?-1:b.severity==='high'?1:0).slice(0,10);
+}
+
+function genComboUsage() {
+  seed(555);
+  return COMBOS.filter(c=>c.active).map(c=>({...c, sold:Math.round(10+sr()*200)}));
+}
+
+// ─── UTILS ───────────────────────────────────────────────────
+function fmt(n){return Math.round(n).toLocaleString('vi-VN');}
+function fmtM(n){return (n/1e6).toFixed(1)+'M';}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function today(){const d=new Date();return`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
+function occColor(p){return p>=70?'var(--green)':p>=50?'var(--teal)':p>=35?'var(--amber)':'var(--red)';}
+function uptColor(p){return p>=95?'var(--green)':p>=90?'var(--teal)':p>=80?'var(--amber)':'var(--red)';}
+
+// ─── RENDER MAIN ─────────────────────────────────────────────
+function render() {
+  document.getElementById('dateLabel').textContent =
+    `Cập nhật: ${today()} — Dữ liệu realtime phòng máy`;
+  renderBranchSelector();
+  ['overview','uptime','config','combo'].forEach(s => {
+    document.getElementById('sec-'+s).style.display = s===section?'block':'none';
+  });
+  if(section==='overview')  renderOverview();
+  else if(section==='uptime')  renderUptime();
+  else if(section==='config')  renderConfig();
+  else renderCombo();
+}
+
+// ─── OVERVIEW ────────────────────────────────────────────────
+function renderOverview() {
+  const d = getActiveData();
+  const label = activeBranch==='all'?'Toàn chuỗi':activeBranch;
+
+  // KPI cards
+  document.getElementById('kpiGrid').innerHTML = [
+    {label:'Tổng máy',val:String(d.total),sub:label,color:'teal'},
+    {label:'Đang dùng',val:String(d.busy),sub:`${pct(d.busy,d.total)}% tổng`,color:pct(d.busy,d.total)>=60?'green':'amber'},
+    {label:'Trống',val:String(d.idle),sub:'Sẵn sàng',color:'blue'},
+    {label:'Máy lỗi',val:String(d.broken),sub:`${pct(d.broken,d.total)}% tổng`,color:pct(d.broken,d.total)>5?'red':'amber'},
+    {label:'Bảo trì',val:String(d.maintenance),sub:'Đang sửa',color:'purple'},
+    {label:'Occupancy',val:d.occupancy+'%',sub:'Đang khai thác',pct:d.occupancy,color:d.occupancy>=60?'green':d.occupancy>=40?'amber':'red'},
+    {label:'Uptime',val:d.uptime+'%',sub:'Máy hoạt động',pct:d.uptime,color:d.uptime>=92?'green':d.uptime>=85?'amber':'red'},
+  ].map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      ${c.pct!==undefined?`<div class="kpi-progress"><div class="kpi-bar ${c.color}" style="width:${Math.min(c.pct,100)}%"></div></div>`:''}
+    </div>`).join('');
+
+  // Machine grid visual
+  renderMachineGrid(d, label);
+
+  // Summary table
+  renderMachineTable();
+
+  // Alerts
+  renderAlerts(d);
+}
+
+function renderMachineGrid(d, label) {
+  document.getElementById('gridTitle').textContent = `Sơ đồ máy — ${label}`;
+  document.getElementById('gridBadge').textContent = `${d.busy}/${d.total} đang dùng`;
+  document.getElementById('gridMeta').textContent = `Occupancy ${d.occupancy}%`;
+
+  // Build a visual grid of cells
+  const total = Math.min(d.total, 80); // cap at 80 for display
+  const cols = activeBranch==='all' ? 20 : Math.ceil(Math.sqrt(total*1.5));
+  const rows = Math.ceil(total/cols);
+
+  // Distribute machine states proportionally
+  const busyCount  = Math.round(d.busy       / d.total * total);
+  const idleCount  = Math.round(d.idle       / d.total * total);
+  const brokenCount= Math.round(d.broken     / d.total * total);
+  const maintCount = total - busyCount - idleCount - brokenCount;
+
+  const states = [
+    ...Array(busyCount).fill('busy'),
+    ...Array(idleCount).fill('ok'),
+    ...Array(brokenCount).fill('broken'),
+    ...Array(Math.max(0,maintCount)).fill('maintenance'),
+  ].slice(0,total);
+
+  // Shuffle
+  seed(BRANCHES.indexOf(activeBranch==='all'?'Stadium':activeBranch)*7+99);
+  for(let i=states.length-1;i>0;i--){const j=Math.floor(sr()*i);[states[i],states[j]]=[states[j],states[i]];}
+
+  const cellSize = activeBranch==='all' ? 14 : 18;
+  document.getElementById('machineGrid').innerHTML =
+    `<div class="machine-grid" style="grid-template-columns:repeat(${cols},${cellSize}px)">
+      ${states.map((s,i)=>`<div class="m-cell ${s}" style="height:${cellSize-2}px" onclick="openMachineModal(${i+1},'${s}','${activeBranch==='all'?'Chuỗi':activeBranch}')" title="PC-${String(i+1).padStart(3,'0')} — ${s==='busy'?'Đang dùng':s==='ok'?'Trống':s==='broken'?'Lỗi':'Bảo trì'}"></div>`).join('')}
+    </div>`;
+}
+
+function renderMachineTable() {
+  const rows = BRANCHES.map(b => ({ name:b, ...genBranchMachines(b) }))
+    .sort((a,b)=>b.occupancy-a.occupancy);
+
+  const profitCount = rows.filter(r=>r.uptime>=90).length;
+  document.getElementById('tableBadge').textContent = `${profitCount}/6 uptime ≥90%`;
+  document.getElementById('tableBadge').className = `badge badge-${profitCount===6?'up':profitCount>=4?'warn':'down'}`;
+
+  document.getElementById('machineBody').innerHTML = rows.map(r=>{
+    const occPill = r.occupancy>=70?'sp-ok':r.occupancy>=45?'sp-warn':'sp-danger';
+    const uptPill = r.uptime>=90?'sp-ok':r.uptime>=80?'sp-warn':'sp-danger';
+    return `<tr>
+      <td><div class="b-name-cell">
+        <span class="s-dot" style="background:${occColor(r.occupancy)}"></span>${r.name}
+      </div></td>
+      <td>${r.total}</td>
+      <td style="color:var(--green);font-weight:600">${r.busy}</td>
+      <td style="color:var(--teal)">${r.idle}</td>
+      <td style="color:${r.broken>4?'var(--red)':'var(--amber)'}">${r.broken}</td>
+      <td style="color:var(--amber)">${r.maintenance}</td>
+      <td><span class="status-pill ${occPill}">${r.occupancy}%</span></td>
+      <td><span class="status-pill ${uptPill}">${r.uptime}%</span></td>
+      <td><span class="status-pill ${r.broken>5?'sp-danger':r.broken>2?'sp-warn':'sp-ok'}">${r.broken>5?'Cần xử lý':r.broken>2?'Theo dõi':'Ổn định'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAlerts(d) {
+  const alerts = [];
+  BRANCHES.forEach(b => {
+    const bd = genBranchMachines(b);
+    if(bd.broken > Math.round(bd.total*0.07))
+      alerts.push({type:'danger',icon:'⚠',title:`${b} — ${bd.broken} máy lỗi`,
+        desc:`${pct(bd.broken,bd.total)}% tổng máy bị lỗi. Vượt ngưỡng 7%. Cần kỹ thuật xử lý ngay.`,time:'Máy lỗi'});
+    else if(bd.broken > 2)
+      alerts.push({type:'warn',icon:'○',title:`${b} — ${bd.broken} máy cần xem lại`,
+        desc:`Uptime ${bd.uptime}%. Lên lịch kiểm tra trong ca ít khách.`,time:'Uptime'});
+    if(bd.occupancy < 35)
+      alerts.push({type:'warn',icon:'↓',title:`${b} — Occupancy thấp: ${bd.occupancy}%`,
+        desc:`Khai thác dưới 35% công suất. Xem lại khung giờ và chính sách giá.`,time:'Occupancy'});
+  });
+  alerts.push({type:'ok',icon:'✓',title:'Hệ thống giám sát hoạt động bình thường',
+    desc:'Dữ liệu cập nhật realtime từ phần mềm quản lý phòng máy.',time:'Hệ thống'});
+
+  const wc = alerts.filter(a=>a.type!=='ok').length;
+  document.getElementById('alertBadge').textContent = `${wc} cảnh báo`;
+  document.getElementById('alertBadge').className = `badge badge-${alerts.some(a=>a.type==='danger')?'down':wc>0?'warn':'up'}`;
+  document.getElementById('alertPanel').innerHTML = alerts.slice(0,6).map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div><div class="alert-title">${a.title}</div>
+      <div class="alert-desc">${a.desc}</div>
+      ${a.time?`<div class="alert-time">${a.time}</div>`:''}</div>
+    </div>`).join('');
+}
+
+// ─── UPTIME ──────────────────────────────────────────────────
+function renderUptime() {
+  const rows = BRANCHES.map(b=>({name:b,...genBranchMachines(b)}));
+  const avgUptime = Math.round(rows.reduce((a,r)=>a+r.uptime,0)/rows.length);
+  const totalBroken = rows.reduce((a,r)=>a+r.broken,0);
+
+  document.getElementById('uptimeKpiGrid').innerHTML = [
+    {label:'Uptime TB chuỗi',val:avgUptime+'%',sub:'Trung bình 6 cơ sở',pct:avgUptime,color:avgUptime>=92?'green':'amber'},
+    {label:'Tổng máy lỗi',val:String(totalBroken),sub:'Toàn chuỗi hôm nay',color:totalBroken>15?'red':'amber'},
+    {label:'Cơ sở tốt nhất',val:rows.sort((a,b)=>b.uptime-a.uptime)[0].name,sub:`Uptime ${rows[0].uptime}%`,color:'teal'},
+    {label:'Cơ sở cần ưu tiên',val:rows.sort((a,b)=>a.uptime-b.uptime)[0].name,sub:`Uptime ${rows[0].uptime}%`,color:'red'},
+  ].map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value sm">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+      ${c.pct!==undefined?`<div class="kpi-progress"><div class="kpi-bar ${c.color}" style="width:${Math.min(c.pct,100)}%"></div></div>`:''}
+    </div>`).join('');
+
+  // Uptime bars
+  const sortedRows = BRANCHES.map(b=>({name:b,...genBranchMachines(b)})).sort((a,b)=>b.uptime-a.uptime);
+  document.getElementById('uptimeBars').innerHTML = sortedRows.map(r=>`
+    <div class="ut-row">
+      <div class="ut-label">${r.name}</div>
+      <div class="ut-bar-bg"><div class="ut-fill" style="width:${r.uptime}%;background:${uptColor(r.uptime)}"></div></div>
+      <div class="ut-val">${r.uptime}%</div>
+    </div>`).join('');
+
+  // Error trend chart
+  const trend = genDailyErrors(7);
+  const maxErr = Math.max(...trend.map(d=>d.errors));
+  const svg = document.getElementById('errorTrendChart');
+  const W=300,H=150,pl=10,pr=10,pt=16,pb=24,iW=W-pl-pr,iH=H-pt-pb;
+  const sy=v=>pt+iH-((v/maxErr)*iH);
+  const sx=i=>pl+(i/(trend.length-1))*iW;
+  const pts=trend.map((d,i)=>`${sx(i)},${sy(d.errors)}`).join(' ');
+  const areaBot=`${sx(trend.length-1)},${pt+iH} ${sx(0)},${pt+iH}`;
+  const avgErr=Math.round(trend.reduce((a,d)=>a+d.errors,0)/trend.length);
+  document.getElementById('errorTrendBadge').textContent=`TB ${avgErr} lỗi/ngày`;
+  svg.innerHTML=`
+    <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--red)" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="var(--red)" stop-opacity="0"/>
+    </linearGradient></defs>
+    <line x1="${pl}" y1="${sy(avgErr)}" x2="${W-pr}" y2="${sy(avgErr)}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3 3"/>
+    <polygon points="${pts} ${areaBot}" fill="url(#eg)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
+    ${trend.map((d,i)=>`
+      <circle cx="${sx(i)}" cy="${sy(d.errors)}" r="4" fill="var(--red)" stroke="var(--bg2)" stroke-width="2"/>
+      <text x="${sx(i)}" y="${H-4}" text-anchor="middle" fill="#484f58" font-size="9" font-family="Be Vietnam Pro">${d.label}</text>
+      <text x="${sx(i)}" y="${sy(d.errors)-7}" text-anchor="middle" fill="var(--red)" font-size="8.5" font-family="JetBrains Mono">${d.errors}</text>`).join('')}`;
+
+  // Incidents
+  const incidents = genIncidents();
+  document.getElementById('incidentBadge').textContent = `${incidents.filter(i=>!i.resolved).length} chưa xử lý`;
+  document.getElementById('incidentList').innerHTML = incidents.map(inc=>`
+    <div class="incident-card ${inc.severity}">
+      <div class="incident-icon">${inc.severity==='high'?'⚠':inc.severity==='med'?'○':'ℹ'}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div class="incident-title">${inc.branch} — ${inc.machine} — ${inc.type}</div>
+          <span class="badge ${inc.resolved?'badge-up':'badge-down'}" style="font-size:10px;flex-shrink:0">${inc.resolved?'Đã xử lý':'Chưa xử lý'}</span>
+        </div>
+        <div class="incident-meta">Mức độ: ${inc.severity==='high'?'Cao':inc.severity==='med'?'Trung bình':'Thấp'}</div>
+        <div class="incident-time">${inc.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── CONFIG ──────────────────────────────────────────────────
+function renderConfig() {
+  document.getElementById('configBranchTabs').innerHTML = BRANCHES.map(b=>`
+    <div class="stab${configBranch===b?' active':''}" style="padding:5px 12px;font-size:12px"
+      onclick="configBranch='${b}';renderConfig()">${b}</div>`).join('');
+
+  const cfg = BRANCH_CONFIG[configBranch];
+  const price = HOURLY_PRICE[configBranch];
+  const mc = MACHINE_COUNTS[configBranch];
+
+  document.getElementById('configCardTitle').textContent = `Cấu hình máy — ${configBranch}`;
+  document.getElementById('configBadge').textContent = `${mc} máy · ${cfg.year}`;
+
+  document.getElementById('configGrid').innerHTML = [
+    {label:'CPU',val:cfg.cpu,sub:'Bộ xử lý'},
+    {label:'GPU',val:cfg.gpu,sub:'Card đồ họa'},
+    {label:'RAM',val:cfg.ram,sub:'Bộ nhớ'},
+    {label:'Storage',val:cfg.storage,sub:'Lưu trữ'},
+    {label:'Màn hình',val:cfg.monitor,sub:'Display'},
+    {label:'Hệ điều hành',val:cfg.os,sub:'OS'},
+    {label:'Số lượng máy',val:String(mc),sub:'Tổng trong cơ sở'},
+    {label:'Năm lắp đặt',val:String(cfg.year),sub:`${new Date().getFullYear()-cfg.year} năm tuổi`},
+  ].map(c=>`
+    <div class="config-card">
+      <div class="config-label">${c.label}</div>
+      <div class="config-val">${c.val}</div>
+      <div class="config-sub">${c.sub}</div>
+    </div>`).join('');
+
+  // Price table
+  document.getElementById('priceTable').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="font-size:10px;font-weight:600;color:var(--dim);text-align:left;padding:0 8px 10px;text-transform:uppercase">Loại giờ</th>
+        <th style="font-size:10px;font-weight:600;color:var(--dim);text-align:right;padding:0 8px 10px;text-transform:uppercase">Đơn giá/giờ</th>
+        <th style="font-size:10px;font-weight:600;color:var(--dim);text-align:right;padding:0 8px 10px;text-transform:uppercase">Áp dụng</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);font-weight:500">Giờ thường</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--teal)">${fmt(price.regular)}</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">T2–T6, 8h–17h</td>
+        </tr>
+        <tr>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);font-weight:500">Giờ cao điểm</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--amber)">${fmt(price.peak)}</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">T6–CN, 17h–22h</td>
+        </tr>
+        <tr>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);font-weight:500">VIP / Khu cao cấp</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--purple)">${fmt(price.vip)}</td>
+          <td style="padding:9px 8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">Quầy VIP riêng</td>
+        </tr>
+      </tbody>
+    </table>`;
+
+  // Config history
+  const history = [
+    {date:'01/04/2025',branch:configBranch,action:'Nâng cấp RAM từ 16GB → 32GB',by:'Kỹ thuật trung tâm'},
+    {date:'15/01/2025',branch:configBranch,action:'Cập nhật giá giờ thường +500đ',by:'Andrew'},
+    {date:'20/11/2024',branch:configBranch,action:'Thay 3 máy GPU hỏng — RTX 4060 Ti',by:'Kỹ thuật'},
+    {date:'01/09/2024',branch:configBranch,action:'Lắp thêm 5 máy mới khu VIP',by:'Andrew'},
+    {date:'15/06/2024',branch:configBranch,action:'Nâng cấp toàn bộ màn hình 144Hz',by:'Kỹ thuật'},
+  ];
+  document.getElementById('configHistory').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0">
+      ${history.map((h,i)=>`
+        <div style="display:flex;gap:14px;padding:10px 0;border-bottom:${i<history.length-1?'1px solid var(--border)':'none'}">
+          <div style="font-size:11px;color:var(--dim);font-family:var(--mono);width:80px;flex-shrink:0;padding-top:1px">${h.date}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${h.action}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Bởi: ${h.by}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ─── COMBO ───────────────────────────────────────────────────
+function renderCombo() {
+  const usage = genComboUsage();
+  const totalSold = usage.reduce((a,c)=>a+c.sold,0);
+  const totalRev  = usage.reduce((a,c)=>a+c.sold*c.price,0);
+  const popularCombo = usage.sort((a,b)=>b.sold-a.sold)[0];
+
+  document.getElementById('comboKpiGrid').innerHTML = [
+    {label:'Tổng combo bán',val:String(totalSold),sub:'Tuần này',color:'teal'},
+    {label:'Doanh thu combo',val:fmtM(totalRev),sub:'VNĐ tuần này',color:'green'},
+    {label:'Combo hot nhất',val:popularCombo.name.split(' ').slice(0,2).join(' '),sub:`${fmt(popularCombo.sold)} lượt`,color:'teal'},
+    {label:'Số combo active',val:String(COMBOS.filter(c=>c.active).length),sub:`/ ${COMBOS.length} tổng`,color:'blue'},
+  ].map(c=>`
+    <div class="kpi-card ${c.color}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value sm">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('comboBadge').textContent = `${COMBOS.filter(c=>c.active).length} active`;
+  document.getElementById('comboBody').innerHTML = COMBOS.map(c=>{
+    const pph = Math.round(c.price/c.hours);
+    const save= Math.round((c.baseHour-pph)/c.baseHour*100);
+    return `<tr class="${c.popular?'combo-popular':''}">
+      <td>
+        <div style="font-weight:500">${c.name}</div>
+        ${c.popular?'<span class="hot-badge">HOT</span>':''}
+      </td>
+      <td>${c.hours}h</td>
+      <td style="color:var(--teal)">${fmt(c.price)}</td>
+      <td style="color:var(--muted)">${fmt(pph)}</td>
+      <td style="color:${save>0?'var(--green)':'var(--muted)'}">
+        ${save>0?`-${save}%`:'—'}
+      </td>
+      <td><span class="status-pill ${c.active?'sp-ok':'sp-danger'}">${c.active?'Đang bán':'Tạm dừng'}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Combo popularity chart
+  const sorted = genComboUsage().sort((a,b)=>b.sold-a.sold);
+  const maxSold = sorted[0].sold;
+  document.getElementById('comboPopChart').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${sorted.map(c=>`
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px">
+            <span style="font-weight:500">${c.name}</span>
+            <span style="font-family:var(--mono);color:var(--muted)">${fmt(c.sold)} lượt</span>
+          </div>
+          <div style="height:7px;background:var(--bg4);border-radius:4px;overflow:hidden">
+            <div style="height:100%;border-radius:4px;background:${c.popular?'var(--teal)':'rgba(57,197,176,0.4)'};width:${Math.round(c.sold/maxSold*100)}%;transition:width .6s"></div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ─── MODAL ───────────────────────────────────────────────────
+function openMachineModal(id, status, branch) {
+  const statusMap = {busy:'Đang sử dụng',ok:'Trống — Sẵn sàng',broken:'Lỗi / Không hoạt động',maintenance:'Đang bảo trì'};
+  const statusColor = {busy:'var(--green)',ok:'var(--teal)',broken:'var(--red)',maintenance:'var(--amber)'};
+  const pcId = `PC-${String(id).padStart(3,'0')}`;
+  const branchForConfig = BRANCHES.includes(branch)?branch:'Stadium';
+  const cfg = BRANCH_CONFIG[branchForConfig];
+  const price = HOURLY_PRICE[branchForConfig];
+
+  document.getElementById('modalTitle').textContent = `${pcId} — ${branch}`;
+  document.getElementById('modalSub').textContent = `Trạng thái: ${statusMap[status]}`;
+
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:12px;background:var(--bg3);border-radius:var(--r2)">
+      <div style="width:12px;height:12px;border-radius:50%;background:${statusColor[status]};flex-shrink:0"></div>
+      <div style="font-size:14px;font-weight:600;color:${statusColor[status]}">${statusMap[status]}</div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Thông số cấu hình</div>
+    ${[
+      ['CPU', cfg.cpu],['GPU', cfg.gpu],['RAM', cfg.ram],
+      ['Storage', cfg.storage],['Màn hình', cfg.monitor],
+      ['Giờ thường', fmt(price.regular)+' đ/h'],
+      ['Giờ cao điểm', fmt(price.peak)+' đ/h'],
+    ].map(([k,v])=>`
+      <div class="spec-row">
+        <span class="spec-label">${k}</span>
+        <span class="spec-val">${v}</span>
+      </div>`).join('')}
+    ${status==='broken'||status==='maintenance'?`
+      <div style="margin-top:16px;padding:12px;background:var(--red-bg);border-radius:var(--r2);border-left:3px solid var(--red)">
+        <div style="font-size:12px;font-weight:600;color:var(--red)">Cần xử lý</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Báo kỹ thuật hoặc ghi nhận vào log sự cố. Ưu tiên xử lý trong ca ít khách.</div>
+      </div>`:''}`;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function closeIfOutside(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+// ─── BRANCH SELECTOR ─────────────────────────────────────────
+function renderBranchSelector() {
+  document.getElementById('branchSelector').innerHTML =
+    `<div class="branch-chip all-chip${activeBranch==='all'?' active':''}" onclick="setBranch('all')">Tất cả cơ sở</div>`
+    + BRANCHES.map(b=>`<div class="branch-chip${activeBranch===b?' active':''}" onclick="setBranch('${b}')">${b}</div>`).join('');
+}
+
+// ─── INTERACTIONS ────────────────────────────────────────────
+function setSection(s, el) {
+  section=s;
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+function setBranch(b) { activeBranch=b; render(); }
+
+// ─── CLOCK ───────────────────────────────────────────────────
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+},1000);
+
+
+// ─── INIT ───────────────────────────────────────────────────
+render();
+OEG.init(async (user) => {
+  const nameEl = document.querySelector('.user-name');
+  const roleEl = document.querySelector('.user-role');
+  if (nameEl) nameEl.textContent = user.name || user.email;
+  if (roleEl) roleEl.textContent = user.role || 'User';
+});
+
+</script>
+  <script src="oeg-shell.js" charset="UTF-8"></script>
+</body>
+</html>
+
+

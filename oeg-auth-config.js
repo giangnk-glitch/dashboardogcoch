@@ -15,9 +15,9 @@ window.OEG_AUTH_CONFIG = {
   // Khai báo user thật ở đây.
   // email phải viết thường.
   users: [
-    // { email: 'admin@oeg.vn', name: 'Admin OEG', role: 'admin', branch: 'all', active: true },
+    // { email: 'giangnk@oeg.vn', name: 'Admin OEG', role: 'admin', branch: 'all', active: true },
     // { email: 'finance@oeg.vn', name: 'Finance', role: 'finance', branch: 'all', active: true },
-    // { email: 'lead.stadium@oeg.vn', name: 'Lead Stadium', role: 'branch_lead', branch: 'Stadium', active: true },
-    // { email: 'viewer@oeg.vn', name: 'Viewer', role: 'viewer', branch: 'all', active: true }
+    // { email: 'ogccm@oeg.vn', name: 'Lead Stadium', role: 'branch_lead', branch: 'Stadium', active: true },
+    // { email: 'gc.opsr@oeg.vn', name: 'Viewer', role: 'viewer', branch: 'all', active: true }
   ]
 };

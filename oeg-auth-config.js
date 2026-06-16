@@ -18,6 +18,6 @@ window.OEG_AUTH_CONFIG = {
     // { email: 'giangnk@oeg.vn', name: 'Admin OEG', role: 'admin', branch: 'all', active: true },
     // { email: 'finance@oeg.vn', name: 'Finance', role: 'finance', branch: 'all', active: true },
     // { email: 'ogccm@oeg.vn', name: 'Lead Stadium', role: 'branch_lead', branch: 'Stadium', active: true },
-    // { email: 'gc.opsr@oeg.vn', name: 'Viewer', role: 'viewer', branch: 'all', active: true }
+    // { email: 'gc.ops@oeg.vn', name: 'Viewer', role: 'viewer', branch: 'all', active: true }
   ]
 };
